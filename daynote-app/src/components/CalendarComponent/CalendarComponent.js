@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 import AddEventModalComponent from "../ModalComponents/AddEventModalComponent";
+import AddNoteModalComponent from "../ModalComponents/AddNoteModalComponent";
 import { Link } from 'react-router-dom';
 import '../../App.css';
 
@@ -12,27 +13,38 @@ export default class CalendarComponent extends Component {
         this.nextMonth = this.nextMonth.bind(this);
         this.getMonthString = this.getMonthString.bind(this);
         this.getMonthEvents = this.getMonthEvents.bind(this);
+        this.getMonthNotes = this.getMonthNotes.bind(this);
         this.getEvents = this.getEvents.bind(this);
-        this.fetchEvents = this.fetchEvents.bind(this);
+        this.getNotes = this.getNotes.bind(this);
+        this.fetchData = this.fetchData.bind(this);
         this.getColourClass = this.getColourClass.bind(this);
+        this.toggleNotes = this.toggleNotes.bind(this);
+        this.addNote = this.addNote.bind(this);
+        this.closeModal = this.closeModal.bind(this);
 
         this.state = {
             day: new Date().getDate(),
             month: new Date().getMonth(),
             year: new Date().getFullYear(),
-            events: []
+            events: [],
+            notes: [],
+            showNotes: false,
+            showNoteModal: "",
+            noteId: null,
+            noteDate: ""
         };
     }
 
     // retrieves all events and stores them in state
     componentDidMount() {
-        this.fetchEvents();
+        this.fetchData();
     }
 
     // TODO AS WELL
-    fetchEvents() {
+    fetchData() {
         this.setState({
-            events: []
+            events: [],
+            notes: []
         });
 
         axios.get('http://localhost:4000/events/')
@@ -43,6 +55,21 @@ export default class CalendarComponent extends Component {
                
                     return {
                       events: fetchedEvents
+                    };
+                  });
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+
+        axios.get('http://localhost:4000/DailyNotes/')
+            .then(response => {
+                this.setState(state => {
+                    const obj = response.data;
+                    const fetchedNotes = state.notes.concat(obj);
+               
+                    return {
+                        notes: fetchedNotes
                     };
                   });
             })
@@ -177,6 +204,37 @@ export default class CalendarComponent extends Component {
         return monthEvents;
     }
 
+    // TODO: this pushes several notes to a date, but there should really only be one note/day
+    getNotes(date, monthNotes) {
+        const key = date.getDate()-1;
+        let notes = [];
+        for(let i = 0; i<monthNotes[key].length; i++) {
+            notes.push(<div key={i}>{monthNotes[key][i].note_text}</div>);
+        }
+        return <div key={key}>{notes}</div>;
+    }
+
+    getMonthNotes(totalDays) {
+        let monthNotes = [];
+        for(let i = 0; i<totalDays; i++) {
+            let events = [];
+            monthNotes.push(events);
+        }
+
+        let currentDate = new Date(this.state.year,this.state.month,this.state.day);
+
+        this.state.notes.map(function(currentNote, i) {
+            let noteStartDate = new Date(currentNote.note_date);
+            noteStartDate.setHours(0,0,0,0);
+
+            if(noteStartDate.getFullYear() === currentDate.getFullYear() && noteStartDate.getMonth() === currentDate.getMonth()) {
+                monthNotes[noteStartDate.getDate()-1].push(currentNote);
+            }
+        });
+
+        return monthNotes;
+    }
+
     renderDates = () => {
         // calendar = tr rows
         let calendar = [];
@@ -191,26 +249,34 @@ export default class CalendarComponent extends Component {
         let totalDays = numDays + startDay;
 
         let monthEvents = this.getMonthEvents(totalDays);
+        let monthNotes = this.getMonthNotes(totalDays);
 
         for (let i = 0; i < (totalDays/7); i++) {
             let children = [];
+            let childrenNotes = [];
             for (let j = 0; j < 7; j++) {
                 if(daysLeft) {
                     children.push(<td key={j}></td>);
+                    childrenNotes.push(<td key={j}></td>);
                     daysLeft--;
                 }
                 else {
                     if(numDays) {
                         let date = i * 7 + (j - startDay + 1);
                         children.push(<td key={date + 7}>{`${date}`}<br/>{this.getEvents(new Date(this.state.year,this.state.month,date),monthEvents)}</td>);
+                        childrenNotes.push(<td key={date + 7} onClick={() => this.addNote(monthNotes[date-1],new Date(this.state.year,this.state.month,date))}>{this.getNotes(new Date(this.state.year,this.state.month,date),monthNotes)}</td>);
                         numDays--;
                     }
                     else {
                         children.push(<td key={date + j}></td>);
+                        childrenNotes.push(<td key={date + j}></td>);
                     }
                 }
             }
             calendar.push(<tr key={i}>{children}</tr>);
+            if(this.state.showNotes) {
+                calendar.push(<tr key={i+(totalDays/7)}>{childrenNotes}</tr>);
+            }
         }
 
         return calendar;
@@ -249,16 +315,62 @@ export default class CalendarComponent extends Component {
         return months[month];
     }
 
+    toggleNotes() {
+        this.setState({
+            showNotes: !this.state.showNotes
+        });
+    }
+
+    // note is an array containing note object(s)
+    addNote(note,date) {
+        /*const newNote = {
+            note_text: "This is a note.",
+            note_date: new Date(this.state.year,this.state.month,this.state.day-2)
+        }
+
+        axios.post('http://localhost:4000/DailyNotes/addNote', newNote)
+            .then(res => {
+                console.log(res.data);
+        
+                //this.props.updateEvents();
+            })
+            .catch(err => console.log(err));*/
+
+        console.log("Clicked");
+        console.log(note);
+        if(note.length !== 0) {
+            // A note already exists, we edit
+            this.setState({
+                noteId: note[0]._id
+            })
+        }
+        this.setState({
+            showNoteModal: "show-events-modal",
+            noteDate: date
+        })
+    }
+
+    closeModal() {
+        this.setState({
+            showNoteModal: "",
+            noteId: null
+        })
+    }
+
     render() {
         return(
             <div>
                 <div className="d-flex justify-content-between">
                     <button className="btn" onClick={this.prevMonth}>Prev</button>
                     <h1 className="text-center">{`${this.getMonthString(this.state.month)} ${this.state.year}`}</h1>
-                    <button className="btn" onClick={this.nextMonth}>Next</button>
+                    <div className="d-flex align-items-center">
+                        <button className="btn"><img src="assets/notes.png" height="25" alt="" onClick={this.toggleNotes} /></button>
+                        <button className="btn" onClick={this.nextMonth}>Next</button>
+                    </div>
                 </div>
 
-                <AddEventModalComponent updateEvents={this.fetchEvents} />
+                <AddEventModalComponent updateEvents={this.fetchData} />
+                <AddNoteModalComponent noteId={this.state.noteId} noteDate={this.state.noteDate} showModal={this.state.showNoteModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
                 
                 <table className="table table-bordered">
                     <thead>
