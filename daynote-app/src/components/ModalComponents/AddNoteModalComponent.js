@@ -13,25 +13,28 @@ export default class AddNoteModalComponent extends Component {
         this.state = {
             showClass: "",
             noteId: "",
-            fetched: false,
             note_text: ""
         }
     }
 
-    componentDidUpdate() {
-        console.log(this.props.noteId);
-        if(this.props.noteId && !this.state.fetched) {
-            console.log("Fetching!");
-            axios.get('http://localhost:4000/DailyNotes/'+this.props.noteId)
-            .then(response => {
-                this.setState({
-                    note_text: response.data.note_text,
-                    fetched: true
+    componentDidUpdate(prevProps) {
+        if(prevProps.noteId !== this.props.noteId) {
+            if(this.props.noteId) {
+                axios.get('http://localhost:4000/DailyNotes/'+this.props.noteId)
+                .then(response => {
+                    this.setState({
+                        note_text: response.data.note_text,
+                    })
                 })
-            })
-            .catch(function(error) {
-                console.log(error);
-            })
+                .catch(function(error) {
+                    console.log(error);
+                })
+            }
+            else {
+                this.setState({
+                    note_text: ""
+                })
+            }
         }
     }
 
@@ -73,35 +76,30 @@ export default class AddNoteModalComponent extends Component {
     // REVIEW THIS AND COMPONENTDIDUPDATE
     static getDerivedStateFromProps(nextProps, prevState) {
         if(prevState.showClass !== nextProps.showModal) {
-            if(prevState.noteId !== nextProps.noteId) {
-                if(!nextProps.noteId) {
-                    return {
-                        showClass: nextProps.showModal,
-                        noteId: nextProps.noteId,
-                        note_text: ""
-                    };
-                }
-                else {
-                    return {
-                        showClass: nextProps.showModal,
-                        noteId: nextProps.noteId,
-                    };
-                }
-            }   
-            else {
-                return {
-                    showClass: nextProps.showModal,
-                    noteId: nextProps.noteId,
-                };
-            }
+            return {
+                showClass: nextProps.showModal
+            };
         }
         return null;
     }
 
     closeModal() {
-        this.setState({
-            fetched: false
-        })
+        if(this.props.noteId) {
+            axios.get('http://localhost:4000/DailyNotes/'+this.props.noteId)
+            .then(response => {
+                this.setState({
+                    note_text: response.data.note_text,
+                })
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+        }
+        else {
+            this.setState({
+                note_text: ""
+            })
+        }
         this.props.closeModal();
     }
 

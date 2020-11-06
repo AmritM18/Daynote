@@ -321,39 +321,30 @@ export default class CalendarComponent extends Component {
         });
     }
 
-    // note is an array containing note object(s)
+    // note is an array containing a note object
     addNote(note,date) {
-        /*const newNote = {
-            note_text: "This is a note.",
-            note_date: new Date(this.state.year,this.state.month,this.state.day-2)
-        }
-
-        axios.post('http://localhost:4000/DailyNotes/addNote', newNote)
-            .then(res => {
-                console.log(res.data);
-        
-                //this.props.updateEvents();
-            })
-            .catch(err => console.log(err));*/
-
         console.log("Clicked");
         console.log(note);
         if(note.length !== 0) {
             // A note already exists, we edit
             this.setState({
+                showNoteModal: "show-events-modal",
+                noteDate: date,
                 noteId: note[0]._id
             })
         }
-        this.setState({
-            showNoteModal: "show-events-modal",
-            noteDate: date
-        })
+        else {
+            this.setState({
+                showNoteModal: "show-events-modal",
+                noteDate: date,
+                noteId: null
+            })
+        }
     }
 
     closeModal() {
         this.setState({
             showNoteModal: "",
-            noteId: null
         })
     }
 
