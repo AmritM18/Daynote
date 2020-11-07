@@ -71,3 +71,39 @@ a:hover {
     text-decoration: none;
     color: gray;
 }
+
+.note-cell {
+    background-color: #ffebeb;
+    /*height: 3em;*/
+}
+
+.date-cell {
+    /*height: 4.5em;*/
+}
+
+.active-note-cell:hover {
+    background-color: #ffd9d9;
+}
+
+.table {
+    table-layout: fixed;
+}
+
+.month {
+    font-size: 36px;
+    margin: 0;
+}
+  
+.panel, .panel * {
+    overflow: hidden;
+    height: 0px;
+    transition: height 0.35s ease-out;
+}
+
+.show-note {
+    height: 75px;
+}
+
+.note-col {
+    width: 50px;
+}

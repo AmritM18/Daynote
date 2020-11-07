@@ -18,29 +18,73 @@ export default class CalendarComponent extends Component {
         this.getNotes = this.getNotes.bind(this);
         this.fetchData = this.fetchData.bind(this);
         this.getColourClass = this.getColourClass.bind(this);
-        this.toggleNotes = this.toggleNotes.bind(this);
         this.addNote = this.addNote.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.toggleDailyNotes = this.toggleDailyNotes.bind(this);
+        this.updateDailyNoteCells = this.updateDailyNoteCells.bind(this);
 
         this.state = {
+            // Store the date of the current calendar view
             day: new Date().getDate(),
             month: new Date().getMonth(),
             year: new Date().getFullYear(),
+            // Store the current month's events and daily notes
             events: [],
             notes: [],
-            showNotes: false,
+            // When daily note clicked, modal should open and we store
+            //   the noteId and noteDate (to pass to the modal)
             showNoteModal: "",
             noteId: null,
             noteDate: ""
         };
     }
 
-    // retrieves all events and stores them in state
+    // Retrieves all events and notes and stores them in state
     componentDidMount() {
         this.fetchData();
     }
 
-    // TODO AS WELL
+    // Makes sure previously opened notes remain visible once a note is updated
+    componentDidUpdate() {
+        this.updateDailyNoteCells();
+    }
+
+    // Opens/closes a week's notes
+    toggleDailyNotes(index) {
+        let panels = document.getElementsByClassName("panel");
+        let descendants = panels[index].getElementsByTagName("*");
+        if(!panels[index].classList.contains("show-note")) {
+            panels[index].classList.add("show-note");
+            for(let i = 0; i<descendants.length; i++) {
+                descendants[i].classList.add("show-note");
+            }
+        }
+        else {
+            panels[index].classList.remove("show-note");
+            for(let i = 0; i<descendants.length; i++) {
+                descendants[i].classList.remove("show-note");
+            }
+        }
+    }
+
+    updateDailyNoteCells() {
+        let panels = document.getElementsByClassName("panel");
+        for(let i = 0; i<panels.length; i++) {
+            let descendants = panels[i].getElementsByTagName("*");
+            if(panels[i].classList.contains("show-note")) {
+                for(let i = 0; i<descendants.length; i++) {
+                    descendants[i].classList.add("show-note");
+                }
+            }
+            else {
+                for(let i = 0; i<descendants.length; i++) {
+                    descendants[i].classList.remove("show-note");
+                }
+            }
+        }
+    }
+
+    // Fetches ALL events and daily notes
     fetchData() {
         this.setState({
             events: [],
@@ -78,6 +122,8 @@ export default class CalendarComponent extends Component {
             })
     }
 
+    // TODO: fix this 
+    // Really bad code to assign certain events a css class
     getColourClass(colour) {
         let className;
         switch (colour) {
@@ -102,6 +148,7 @@ export default class CalendarComponent extends Component {
         return className;
     }
 
+    // Returns a string for time
     getTime(date) {
         let hours = date.getHours();
         let midday;
@@ -117,6 +164,9 @@ export default class CalendarComponent extends Component {
             midday = "am";
         }
         let minutes = date.getMinutes();
+        if(minutes < 10) {
+            minutes = "0" + minutes;
+        }
         let time;
         if(minutes > 0) {
             time = hours + ":" + minutes + midday;
@@ -127,6 +177,7 @@ export default class CalendarComponent extends Component {
         return time;
     }
 
+    // Returns the event for the given date
     getEvents(date, monthEvents) {
         const key = date.getDate()-1;
         let events = [];
@@ -145,6 +196,7 @@ export default class CalendarComponent extends Component {
         return <div key={key}>{events}</div>;
     }
 
+    // Looks at this.state.events and returns the events from the current month
     getMonthEvents(totalDays) {
         let monthEvents = [];
         for(let i = 0; i<totalDays; i++) {
@@ -204,6 +256,7 @@ export default class CalendarComponent extends Component {
         return monthEvents;
     }
 
+    // Returns the note for a date
     // TODO: this pushes several notes to a date, but there should really only be one note/day
     getNotes(date, monthNotes) {
         const key = date.getDate()-1;
@@ -214,6 +267,7 @@ export default class CalendarComponent extends Component {
         return <div key={key}>{notes}</div>;
     }
 
+    // Looks at this.state.notes and returns the notes from the current month
     getMonthNotes(totalDays) {
         let monthNotes = [];
         for(let i = 0; i<totalDays; i++) {
@@ -235,6 +289,7 @@ export default class CalendarComponent extends Component {
         return monthNotes;
     }
 
+    // Creates entire calendar table by retrieving events/notes then pushing cells into calendar 2D array
     renderDates = () => {
         // calendar = tr rows
         let calendar = [];
@@ -254,29 +309,33 @@ export default class CalendarComponent extends Component {
         for (let i = 0; i < (totalDays/7); i++) {
             let children = [];
             let childrenNotes = [];
+
+            children.push(<td key={i} className="date-cell p-0"><button className="btn"><img src="assets/notes.png" height="25" alt="" onClick={() => this.toggleDailyNotes(i)} /></button></td>);
+            childrenNotes.push(<td key={i} className="note-cell p-0"></td>);
+
             for (let j = 0; j < 7; j++) {
                 if(daysLeft) {
-                    children.push(<td key={j}></td>);
-                    childrenNotes.push(<td key={j}></td>);
+                    children.push(<td key={j} className="date-cell py-0"></td>);
+                    childrenNotes.push(<td key={j} className="note-cell py-0"></td>);
                     daysLeft--;
                 }
                 else {
                     if(numDays) {
                         let date = i * 7 + (j - startDay + 1);
-                        children.push(<td key={date + 7}>{`${date}`}<br/>{this.getEvents(new Date(this.state.year,this.state.month,date),monthEvents)}</td>);
-                        childrenNotes.push(<td key={date + 7} onClick={() => this.addNote(monthNotes[date-1],new Date(this.state.year,this.state.month,date))}>{this.getNotes(new Date(this.state.year,this.state.month,date),monthNotes)}</td>);
+                        children.push(<td key={date + 7} className="date-cell py-0">{`${date}`}<br/>{this.getEvents(new Date(this.state.year,this.state.month,date),monthEvents)}</td>);
+                        childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell py-0" onClick={() => this.addNote(monthNotes[date-1],new Date(this.state.year,this.state.month,date))}>{this.getNotes(new Date(this.state.year,this.state.month,date),monthNotes)}</td>);
                         numDays--;
                     }
                     else {
-                        children.push(<td key={date + j}></td>);
-                        childrenNotes.push(<td key={date + j}></td>);
+                        children.push(<td key={date + j} className="date-cell py-0"></td>);
+                        childrenNotes.push(<td key={date + j} className="note-cell py-0"></td>);
                     }
                 }
             }
             calendar.push(<tr key={i}>{children}</tr>);
-            if(this.state.showNotes) {
-                calendar.push(<tr key={i+(totalDays/7)}>{childrenNotes}</tr>);
-            }
+            //if(this.state.showNotes) {
+                calendar.push(<tr key={i+(totalDays/7)} className="panel">{childrenNotes}</tr>);
+            //}
         }
 
         return calendar;
@@ -315,13 +374,8 @@ export default class CalendarComponent extends Component {
         return months[month];
     }
 
-    toggleNotes() {
-        this.setState({
-            showNotes: !this.state.showNotes
-        });
-    }
-
-    // note is an array containing a note object
+    // addNote updates note modal state fields to pass as props to AddNoteModalComponent
+    //   note is an array containing at most one note object
     addNote(note,date) {
         console.log("Clicked");
         console.log(note);
@@ -342,6 +396,7 @@ export default class CalendarComponent extends Component {
         }
     }
 
+    // Closes the note modal
     closeModal() {
         this.setState({
             showNoteModal: "",
@@ -352,20 +407,26 @@ export default class CalendarComponent extends Component {
         return(
             <div>
                 <div className="d-flex justify-content-between">
-                    <button className="btn" onClick={this.prevMonth}>Prev</button>
-                    <h1 className="text-center">{`${this.getMonthString(this.state.month)} ${this.state.year}`}</h1>
                     <div className="d-flex align-items-center">
-                        <button className="btn"><img src="assets/notes.png" height="25" alt="" onClick={this.toggleNotes} /></button>
-                        <button className="btn" onClick={this.nextMonth}>Next</button>
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <button className="btn border" onClick={this.prevMonth}>← Prev</button>
+                            <button className="btn border" onClick={this.nextMonth}>Next →</button>
+                        </div>
+                    </div>
+                    <div>
+                        <p className="text-center month">{`${this.getMonthString(this.state.month)} ${this.state.year}`}</p>
+                    </div>
+                    <div className="d-flex align-items-center">
+                        <AddEventModalComponent updateEvents={this.fetchData} />
                     </div>
                 </div>
-
-                <AddEventModalComponent updateEvents={this.fetchData} />
-                <AddNoteModalComponent noteId={this.state.noteId} noteDate={this.state.noteDate} showModal={this.state.showNoteModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
                 
+                <AddNoteModalComponent noteId={this.state.noteId} noteDate={this.state.noteDate} showModal={this.state.showNoteModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
+
                 <table className="table table-bordered">
                     <thead>
                         <tr>
+                            <th scope="col" className="note-col"></th>
                             <th scope="col">Sunday</th>
                             <th scope="col">Monday</th>
                             <th scope="col">Tuesday</th>
