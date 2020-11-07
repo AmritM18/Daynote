@@ -1,13 +1,12 @@
 import React, {Component} from 'react';
-import { Link } from 'react-router-dom';
 import '../../App.css';
 
 import "react-datetime/css/react-datetime.css";
 
 export default class EditTodo extends Component {
 
-    constructor(props) {
-        super(props);
+    //constructor(props) {
+        //super(props);
 
         /*this.onSubmit = this.onSubmit.bind(this);
         this.onChangeEventTitle = this.onChangeEventTitle.bind(this);
@@ -24,7 +23,7 @@ export default class EditTodo extends Component {
             event_end: new Date(),
             event_colour: "1"
         }*/
-    }
+    //}
 
     /*componentDidMount() {
         axios.get('http://localhost:4000/events/'+this.props.match.params.id)
