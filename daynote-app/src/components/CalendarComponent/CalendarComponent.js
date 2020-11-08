@@ -426,7 +426,7 @@ export default class CalendarComponent extends Component {
             <div>
                 <div className="d-flex justify-content-between">
                     <div className="d-flex align-items-center">
-                        <div class="btn-group" role="group" aria-label="Basic example">
+                        <div className="btn-group" role="group" aria-label="Basic example">
                             <button className="btn border" onClick={this.prevMonth}>← Prev</button>
                             <button className="btn border" onClick={this.goToToday}>Today</button>
                             <button className="btn border" onClick={this.nextMonth}>Next →</button>

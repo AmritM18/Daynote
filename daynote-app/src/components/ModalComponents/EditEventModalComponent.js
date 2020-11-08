@@ -121,17 +121,13 @@ export default class EditTodo extends Component {
     }
 
     dateTimePickerStart() {
-        let inputProps = {
-            value: this.state.event_start
-        };
-        return <Datetime onChange={this.onChangeEventStart} inputProps={inputProps} />;
+        let startDate = new Date(this.state.event_start);
+        return <Datetime onChange={this.onChangeEventStart} value={startDate} initialValue={startDate} />;
     }
 
     dateTimePickerEnd() {
-        let inputProps = {
-            value: this.state.event_end
-        };
-        return <Datetime onChange={this.onChangeEventEnd} inputProps={inputProps} />;
+        let endDate = new Date(this.state.event_end);
+        return <Datetime onChange={this.onChangeEventEnd} value={endDate} initialValue={endDate} />;
     }
 
     deleteEvent() {
