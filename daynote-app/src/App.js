@@ -11,7 +11,7 @@ import EditEventModalComponent from "./components/ModalComponents/EditEventModal
 function App() {
   return (
     <div className="container-fluid">
-      <div className="row mx-2 mt-3">
+      <div className="row mt-2">
         <Router>
           <div className="col-9">
             <Route path={["/", "/addNote"]} exact component={CalendarComponent}/>
