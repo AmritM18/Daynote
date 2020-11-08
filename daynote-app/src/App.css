@@ -74,11 +74,10 @@ a:hover {
 
 .note-cell {
     background-color: #ffebeb;
-    /*height: 3em;*/
 }
 
 .date-cell {
-    /*height: 4.5em;*/
+    height: 4.5em;
 }
 
 .active-note-cell:hover {
@@ -106,4 +105,18 @@ a:hover {
 
 .note-col {
     width: 50px;
+}
+
+.toggle-notes {
+    overflow: hidden;
+    transition-duration: 0.5s;
+    transition-property: transform;
+}
+
+.toggle-notes:hover {
+    cursor: pointer;
+}
+
+.toggle-notes.toggled {
+    transform: rotate(-180deg);
 }

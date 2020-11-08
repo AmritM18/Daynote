@@ -22,6 +22,7 @@ export default class CalendarComponent extends Component {
         this.closeModal = this.closeModal.bind(this);
         this.toggleDailyNotes = this.toggleDailyNotes.bind(this);
         this.updateDailyNoteCells = this.updateDailyNoteCells.bind(this);
+        this.goToToday = this.goToToday.bind(this);
 
         this.state = {
             // Store the date of the current calendar view
@@ -51,6 +52,10 @@ export default class CalendarComponent extends Component {
 
     // Opens/closes a week's notes
     toggleDailyNotes(index) {
+        // Arrow animation
+        let arrows = document.getElementsByClassName("toggle-notes");
+        arrows[index].classList.toggle("toggled");
+        // Shows/hides row of notes
         let panels = document.getElementsByClassName("panel");
         let descendants = panels[index].getElementsByTagName("*");
         if(!panels[index].classList.contains("show-note")) {
@@ -68,6 +73,11 @@ export default class CalendarComponent extends Component {
     }
 
     updateDailyNoteCells() {
+        let arrows = document.getElementsByClassName("toggle-notes");
+        for(let i = 0; i<arrows.length; i++) {
+            arrows[i].classList.remove("toggled");
+        }
+
         let panels = document.getElementsByClassName("panel");
         for(let i = 0; i<panels.length; i++) {
             let descendants = panels[i].getElementsByTagName("*");
@@ -310,8 +320,8 @@ export default class CalendarComponent extends Component {
             let children = [];
             let childrenNotes = [];
 
-            children.push(<td key={i} className="date-cell p-0"><button className="btn"><img src="assets/notes.png" height="25" alt="" onClick={() => this.toggleDailyNotes(i)} /></button></td>);
-            childrenNotes.push(<td key={i} className="note-cell p-0"></td>);
+            children.push(<td key={i} className="date-cell p-0 text-center align-middle"><img src="assets/down-arrow.png" height="15" alt="" className="toggle-notes" onClick={() => this.toggleDailyNotes(i)} /></td>);
+            childrenNotes.push(<td key={i} className="note-cell p-0 bg-transparent"></td>);
 
             for (let j = 0; j < 7; j++) {
                 if(daysLeft) {
@@ -369,6 +379,14 @@ export default class CalendarComponent extends Component {
         }
     }
 
+    goToToday() {
+        this.setState({
+            day: new Date().getDate(),
+            month: new Date().getMonth(),
+            year: new Date().getFullYear()
+        })
+    }
+
     getMonthString(month) {
         const months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
         return months[month];
@@ -410,6 +428,7 @@ export default class CalendarComponent extends Component {
                     <div className="d-flex align-items-center">
                         <div class="btn-group" role="group" aria-label="Basic example">
                             <button className="btn border" onClick={this.prevMonth}>← Prev</button>
+                            <button className="btn border" onClick={this.goToToday}>Today</button>
                             <button className="btn border" onClick={this.nextMonth}>Next →</button>
                         </div>
                     </div>
