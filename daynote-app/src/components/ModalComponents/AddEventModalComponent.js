@@ -72,11 +72,11 @@ export default class AddEventModalComponent extends Component {
         // prevents default submit behaviour of browser 
         e.preventDefault();
 
-        console.log(`Form submitted:`);
+        /*console.log(`Form submitted:`);
         console.log(`Title: ${this.state.event_title}`);
         console.log(`Start: ${this.state.event_start}`);
         console.log(`End: ${this.state.event_end}`);
-        console.log(`Colour: ${this.state.event_colour}`);
+        console.log(`Colour: ${this.state.event_colour}`);*/
 
         const newEvent = {
             event_title: this.state.event_title,
@@ -85,35 +85,199 @@ export default class AddEventModalComponent extends Component {
             event_colour: this.state.event_colour,
         }
 
-        axios.post('http://localhost:4000/events/addEvent', newEvent)
-            .then(res => {
-                console.log(res.data);
+        if(this.state.event_start.getMonth() === this.state.event_end.getMonth() && this.state.event_start.getFullYear() === this.state.event_end.getFullYear()) {
+            let monthYear = "" + (this.state.event_start.getMonth()+1) + this.state.event_start.getFullYear();
+            console.log(monthYear);
+            
+            axios.get('http://localhost:4000/events/exists/'+monthYear)
+                .then(response => {
+                    // if an entry for this month doesn't exist, create one
+                    if(!response.data) {
+                        const newEventGroup = {
+                            monthYear: monthYear,
+                            events: [newEvent]
+                        }
 
-                this.setState({
-                    showClass: "",
-                    event_title: "",
-                    event_start: new Date(),
-                    event_end: new Date(),
-                    event_colour: "1"
-                });
-        
-                this.props.updateEvents();
-            })
-            .catch(err => console.log(err));
+                        axios.post('http://localhost:4000/events/addMonth', newEventGroup)
+                            .then(res => {
+                                console.log(res.data);
+
+                                this.setState({
+                                    showClass: "",
+                                    event_title: "",
+                                    event_start: new Date(),
+                                    event_end: new Date(),
+                                    event_colour: "1"
+                                });
+                        
+                                this.props.updateEvents();
+                            })
+                            .catch(err => console.log(err));
+                    }
+                    // otherwise add to existing month entry
+                    else {
+                        axios.get('http://localhost:4000/events/getMonth/'+monthYear)
+                            .then(response => {
+                                let events = response.data.events;
+                                events.push(newEvent);
+
+                                const newEventGroup = {
+                                    monthYear: response.data.monthYear,
+                                    events: events
+                                }
+
+                                console.log(newEventGroup);
+                                
+                                axios.post('http://localhost:4000/events/updateMonth/'+monthYear, newEventGroup)
+                                    .then(res =>{
+                                        console.log(res.data);
+
+                                        this.setState({
+                                            showClass: "",
+                                            event_title: "",
+                                            event_start: new Date(),
+                                            event_end: new Date(),
+                                            event_colour: "1"
+                                        });
+                                
+                                        this.props.updateEvents();
+                                    })
+                                    .catch(err => console.log(err));
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                })
+        }
+        else {
+            let monthYear = "" + (this.state.event_start.getMonth()+1) + this.state.event_start.getFullYear();
+            console.log(monthYear);
+            
+            axios.get('http://localhost:4000/events/exists/'+monthYear)
+                .then(response => {
+                    // if an entry for this month doesn't exist, create one
+                    if(!response.data) {
+                        const newEventGroup = {
+                            monthYear: monthYear,
+                            events: [newEvent]
+                        }
+
+                        axios.post('http://localhost:4000/events/addMonth', newEventGroup)
+                            .then(res => {
+                                console.log(res.data);
+                            })
+                            .catch(err => console.log(err));
+                    }
+                    // otherwise add to existing month entry
+                    else {
+                        axios.get('http://localhost:4000/events/getMonth/'+monthYear)
+                            .then(response => {
+                                let events = response.data.events;
+                                events.push(newEvent);
+
+                                const newEventGroup = {
+                                    monthYear: response.data.monthYear,
+                                    events: events
+                                }
+
+                                console.log(newEventGroup);
+                                
+                                axios.post('http://localhost:4000/events/updateMonth/'+monthYear, newEventGroup)
+                                    .then(res =>{
+                                        console.log(res.data);
+                                    })
+                                    .catch(err => console.log(err));
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                })
+
+            let monthYearEnd = "" + (this.state.event_end.getMonth()+1) + this.state.event_end.getFullYear();
+            console.log(monthYearEnd);
+            
+            axios.get('http://localhost:4000/events/exists/'+monthYearEnd)
+                .then(response => {
+                    // if an entry for this month doesn't exist, create one
+                    if(!response.data) {
+                        const newEventGroup = {
+                            monthYear: monthYearEnd,
+                            events: [newEvent]
+                        }
+
+                        axios.post('http://localhost:4000/events/addMonth', newEventGroup)
+                            .then(res => {
+                                console.log(res.data);
+
+                                this.setState({
+                                    showClass: "",
+                                    event_title: "",
+                                    event_start: new Date(),
+                                    event_end: new Date(),
+                                    event_colour: "1"
+                                });
+                        
+                                this.props.updateEvents();
+                            })
+                            .catch(err => console.log(err));
+                    }
+                    // otherwise add to existing month entry
+                    else {
+                        axios.get('http://localhost:4000/events/getMonth/'+monthYearEnd)
+                            .then(response => {
+                                let events = response.data.events;
+                                events.push(newEvent);
+
+                                const newEventGroup = {
+                                    monthYear: response.data.monthYear,
+                                    events: events
+                                }
+
+                                console.log(newEventGroup);
+                                
+                                axios.post('http://localhost:4000/events/updateMonth/'+monthYearEnd, newEventGroup)
+                                    .then(res =>{
+                                        console.log(res.data);
+
+                                        this.setState({
+                                            showClass: "",
+                                            event_title: "",
+                                            event_start: new Date(),
+                                            event_end: new Date(),
+                                            event_colour: "1"
+                                        });
+                                
+                                        this.props.updateEvents();
+                                    })
+                                    .catch(err => console.log(err));
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                })
+        }
     }
 
     dateTimePickerStart() {
-        let inputProps = {
-            value: this.state.event_start
-        };
-        return <Datetime onChange={this.onChangeEventStart} inputProps={inputProps} />;
+        let startDate = new Date(this.state.event_start);
+        return <Datetime onChange={this.onChangeEventStart} value={startDate} initialValue={startDate} />;
     }
 
     dateTimePickerEnd() {
-        let inputProps = {
-            value: this.state.event_end
-        };
-        return <Datetime onChange={this.onChangeEventEnd} inputProps={inputProps} />;
+        let endDate = new Date(this.state.event_end);
+        return <Datetime onChange={this.onChangeEventEnd} value={endDate} initialValue={endDate} />;
     }
 
     render() {

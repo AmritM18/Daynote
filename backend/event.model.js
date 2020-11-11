@@ -16,4 +16,14 @@ let Event = new Schema({
     }
 });
 
+let EventGroup = new Schema({
+    monthYear: {
+        type: String
+    },
+    events: {
+        type: [ Event ]
+    }
+});
+
 module.exports = mongoose.model('Event', Event);
+module.exports = mongoose.model('EventGroup', EventGroup);
