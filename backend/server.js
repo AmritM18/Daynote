@@ -12,6 +12,8 @@ let Note = require('./note.model');
 let Event = require('./event.model');
 let DailyNote = require('./dailyNote.model');
 
+let EventGroup = require('./event.model');
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -83,6 +85,35 @@ routes2.route('/:id').get(function(req,res) {
     });
 });
 
+routes2.route('/getMonth/:month').get(function(req,res) {
+    let month = req.params.month;
+    EventGroup.findOne({monthYear: month}, function(err,obj){
+        res.json(obj);
+    })
+});
+
+routes2.route('/exists/:month').get(function(req,res) {
+    let month = req.params.month;
+    EventGroup.exists({ monthYear: month }, function(err, result) {
+        if (err) {
+          res.send(err);
+        } else {
+          res.send(result);
+        }
+      });
+});
+
+routes2.route('/addMonth/').post(function(req,res) {
+    let eventGroup = new EventGroup(req.body);
+    eventGroup.save()
+        .then(eventGroup => {
+            res.status(200).json({'eventGroup': 'eventGroup added successfuly'});
+        })
+        .catch(err => {
+            res.status(400).send('adding new eventGroup failed');
+        });
+});
+
 routes2.route('/addEvent').post(function(req,res) {
     let event = new Event(req.body);
     event.save()
@@ -92,6 +123,26 @@ routes2.route('/addEvent').post(function(req,res) {
         .catch(err => {
             res.status(400).send('adding new event failed');
         });
+});
+
+routes2.route('/updateMonth/:month').post(function(req,res) {
+    let month = req.params.month;
+    EventGroup.findOne({monthYear: month}, function(err,eventGroup){
+        if(!eventGroup) {
+            res.status(404).send('data is not found');
+        }
+        else {
+            eventGroup.monthYear = req.body.monthYear;
+            eventGroup.events = req.body.events;
+
+            eventGroup.save().then(eventGroup => {
+                res.json('Event updated');
+            })
+            .catch(err => {
+                res.status(400).send("Update not possible");
+            });
+        }
+    })
 });
 
 routes2.route('/update/:id').post(function(req,res) {

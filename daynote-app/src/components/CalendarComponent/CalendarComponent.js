@@ -12,12 +12,11 @@ export default class CalendarComponent extends Component {
         this.prevMonth = this.prevMonth.bind(this);
         this.nextMonth = this.nextMonth.bind(this);
         this.getMonthString = this.getMonthString.bind(this);
-        this.getMonthEvents = this.getMonthEvents.bind(this);
+        this.organizeMonthEvents = this.organizeMonthEvents.bind(this);
         this.getMonthNotes = this.getMonthNotes.bind(this);
         this.getEvents = this.getEvents.bind(this);
         this.getNotes = this.getNotes.bind(this);
         this.fetchData = this.fetchData.bind(this);
-        this.getColourClass = this.getColourClass.bind(this);
         this.addNote = this.addNote.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.toggleDailyNotes = this.toggleDailyNotes.bind(this);
@@ -40,14 +39,18 @@ export default class CalendarComponent extends Component {
         };
     }
 
-    // Retrieves all events and notes and stores them in state
+    // Retrieves month's events and notes and stores them in state
     componentDidMount() {
         this.fetchData();
     }
 
-    // Makes sure previously opened notes remain visible once a note is updated
-    componentDidUpdate() {
+    componentDidUpdate(prevProps, prevState) {
+        // Makes sure previously opened notes remain visible once a note is updated
         this.updateDailyNoteCells();
+        // If the month has been changed, fetch events and notes
+        if(prevState.month !== this.state.month) {
+            this.fetchData();
+        }
     }
 
     // Opens/closes a week's notes
@@ -72,6 +75,7 @@ export default class CalendarComponent extends Component {
         }
     }
 
+    // Makes sure previously opened notes remain visible once a note is updated
     updateDailyNoteCells() {
         let arrows = document.getElementsByClassName("toggle-notes");
         for(let i = 0; i<arrows.length; i++) {
@@ -94,23 +98,26 @@ export default class CalendarComponent extends Component {
         }
     }
 
-    // Fetches ALL events and daily notes
+    // Fetches month's events and daily notes
     fetchData() {
         this.setState({
             events: [],
             notes: []
         });
 
-        axios.get('http://localhost:4000/events/')
+        let monthYear = "" + (this.state.month+1) + this.state.year;
+        axios.get('http://localhost:4000/events/getMonth/'+monthYear)
             .then(response => {
-                this.setState(state => {
-                    const obj = response.data;
-                    const fetchedEvents = state.events.concat(obj);
-               
-                    return {
-                      events: fetchedEvents
-                    };
-                  });
+                if(response.data) {
+                    this.setState(state => {
+                        const obj = response.data.events;
+                        const fetchedEvents = state.events.concat(obj);
+                   
+                        return {
+                          events: fetchedEvents
+                        };
+                      });
+                }
             })
             .catch(function (error) {
                 console.log(error);
@@ -130,32 +137,6 @@ export default class CalendarComponent extends Component {
             .catch(function (error) {
                 console.log(error);
             })
-    }
-
-    // TODO: fix this 
-    // Really bad code to assign certain events a css class
-    getColourClass(colour) {
-        let className;
-        switch (colour) {
-            case "5":
-                className = "colour-5";
-                break;
-            case "4":
-                className = "colour-4";
-                break;
-            case "3":
-                className = "colour-3";
-                break;
-            case "2":
-                className = "colour-2";
-                break;
-            case "1":
-                className = "colour-1";
-                break;
-            default:
-                className = "";
-        }
-        return className;
     }
 
     // Returns a string for time
@@ -187,7 +168,7 @@ export default class CalendarComponent extends Component {
         return time;
     }
 
-    // Returns the event for the given date
+    // Returns events for the given date
     getEvents(date, monthEvents) {
         const key = date.getDate()-1;
         let events = [];
@@ -207,8 +188,9 @@ export default class CalendarComponent extends Component {
         return <div key={key}>{events}</div>;
     }
 
-    // Looks at this.state.events and returns the events from the current month
-    getMonthEvents(totalDays) {
+    // Places events into an array where length of array = # of days in month
+    //   pushes "S" or "E" afterwards depending on if event is starting or ending
+    organizeMonthEvents(totalDays) {
         let monthEvents = [];
         for(let i = 0; i<totalDays; i++) {
             let events = [];
@@ -235,40 +217,10 @@ export default class CalendarComponent extends Component {
             }
         });
 
-        // PRINTS EVENTS ON EVERY DAY THEY OCCUR
-        /*let today = new Date(this.state.year,this.state.month,this.state.day);
-        let events = [];
-
-        this.state.events.map(function(currentEvent, i) {
-            let eventStartDate = new Date(currentEvent.event_start);
-            let eventEndDate = new Date(currentEvent.event_end);
-
-            if(eventStartDate.getFullYear() <= today.getFullYear() && today.getFullYear() <= eventEndDate.getFullYear()) {
-                if(eventStartDate.getMonth() <= today.getMonth() && today.getMonth() <= eventEndDate.getMonth()) {
-                    events.push(currentEvent);
-                }
-            }
-        });
-
-        for(let i = 1; i<=totalDays; i++) {
-            let currentDate = new Date(this.state.year,this.state.month,i);
-            currentDate.setHours(0,0,0,0);
-            for(let j = 0; j<events.length; j++) {
-                let eventStartDate = new Date(events[j].event_start);
-                let eventEndDate = new Date(events[j].event_end);
-                eventStartDate.setHours(0,0,0,0);
-                eventEndDate.setHours(0,0,0,0);
-                if(eventStartDate <= currentDate && currentDate <= eventEndDate) {
-                    monthEvents[i-1].push(events[j]);
-                }
-            }
-        }*/
-
         return monthEvents;
     }
 
     // Returns the note for a date
-    // TODO: this pushes several notes to a date, but there should really only be one note/day
     getNotes(date, monthNotes) {
         const key = date.getDate()-1;
         let notes = [];
@@ -278,7 +230,7 @@ export default class CalendarComponent extends Component {
         return <div key={key}>{notes}</div>;
     }
 
-    // Looks at this.state.notes and returns the notes from the current month
+    // Looks at this.state.notes and returns the notes for the current month
     getMonthNotes(totalDays) {
         let monthNotes = [];
         for(let i = 0; i<totalDays; i++) {
@@ -302,7 +254,6 @@ export default class CalendarComponent extends Component {
 
     // Creates entire calendar table by retrieving events/notes then pushing cells into calendar 2D array
     renderDates = () => {
-        // calendar = tr rows
         let calendar = [];
 
         let date = new Date(this.state.year,this.state.month+1,this.state.day);
@@ -314,15 +265,15 @@ export default class CalendarComponent extends Component {
         let daysLeft = startDay;
         let totalDays = numDays + startDay;
 
-        let monthEvents = this.getMonthEvents(totalDays);
+        let monthEvents = this.organizeMonthEvents(totalDays);
         let monthNotes = this.getMonthNotes(totalDays);
 
         for (let i = 0; i < (totalDays/7); i++) {
             let children = [];
             let childrenNotes = [];
 
-            children.push(<td key={i} className="date-cell p-0 text-center align-middle"><img src="assets/down-arrow.png" height="15" alt="" className="toggle-notes" onClick={() => this.toggleDailyNotes(i)} /></td>);
-            childrenNotes.push(<td key={i} className="note-cell p-0 bg-transparent"></td>);
+            children.push(<td key={-1} className="date-cell p-0 text-center align-middle"><img src="assets/down-arrow.png" height="15" alt="" className="toggle-notes" onClick={() => this.toggleDailyNotes(i)} /></td>);
+            childrenNotes.push(<td key={-1} className="note-cell p-0 bg-transparent"></td>);
 
             for (let j = 0; j < 7; j++) {
                 if(daysLeft) {
@@ -344,9 +295,7 @@ export default class CalendarComponent extends Component {
                 }
             }
             calendar.push(<tr key={i}>{children}</tr>);
-            //if(this.state.showNotes) {
-                calendar.push(<tr key={i+(totalDays/7)} className="panel">{childrenNotes}</tr>);
-            //}
+            calendar.push(<tr key={i+(totalDays/7)} className="panel">{childrenNotes}</tr>);
         }
 
         return calendar;
@@ -388,6 +337,7 @@ export default class CalendarComponent extends Component {
         })
     }
 
+    // Month number to month string
     getMonthString(month) {
         const months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
         return months[month];
