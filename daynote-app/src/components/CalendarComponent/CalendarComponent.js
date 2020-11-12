@@ -201,7 +201,8 @@ export default class CalendarComponent extends Component {
             else if(monthEvents[key][i+1] === "E") {
                 message = " Ends";
             }
-            events.push(<Link to={"/edit/"+monthEvents[key][i]._id} key={i} className={this.getColourClass(monthEvents[key][i].event_colour)}>{monthEvents[key][i].event_title}{message}</Link>);
+            let monthYear = "" + (this.state.month+1) + this.state.year; 
+            events.push(<Link to={"/edit/"+monthYear+monthEvents[key][i]._id} key={i} className={"colour-"+monthEvents[key][i].event_colour}>{monthEvents[key][i].event_title}{message}</Link>);
         }
         return <div key={key}>{events}</div>;
     }
@@ -272,7 +273,7 @@ export default class CalendarComponent extends Component {
         const key = date.getDate()-1;
         let notes = [];
         for(let i = 0; i<monthNotes[key].length; i++) {
-            notes.push(<div key={i}>{monthNotes[key][i].note_text}</div>);
+            notes.push(<div key={i} dangerouslySetInnerHTML={{ __html: monthNotes[key][i].note_text }}></div>);
         }
         return <div key={key}>{notes}</div>;
     }

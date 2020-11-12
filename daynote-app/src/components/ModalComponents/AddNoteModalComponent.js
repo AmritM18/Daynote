@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 import '../../App.css';
+import { Editor } from '@tinymce/tinymce-react'; 
 
 export default class AddNoteModalComponent extends Component {
     constructor(props) {
@@ -13,11 +14,11 @@ export default class AddNoteModalComponent extends Component {
         this.state = {
             showClass: "",
             noteId: "",
-            note_text: ""
+            note_text: "<p></p>"
         }
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevState) {
         if(prevProps.noteId !== this.props.noteId) {
             if(this.props.noteId) {
                 axios.get('http://localhost:4000/DailyNotes/'+this.props.noteId)
@@ -32,7 +33,7 @@ export default class AddNoteModalComponent extends Component {
             }
             else {
                 this.setState({
-                    note_text: ""
+                    note_text: "<p></p>"
                 })
             }
         }
@@ -40,7 +41,7 @@ export default class AddNoteModalComponent extends Component {
 
     onChangeNoteText(e) {
         this.setState({
-            note_text: e.target.value
+            note_text: e.target.getContent()
         });
     }
 
@@ -97,7 +98,7 @@ export default class AddNoteModalComponent extends Component {
         }
         else {
             this.setState({
-                note_text: ""
+                note_text: "<p></p>"
             })
         }
         this.props.closeModal();
@@ -113,8 +114,25 @@ export default class AddNoteModalComponent extends Component {
                         <form onSubmit={this.onSubmit}>
                             <div className="form-group">
                                 <label>Note for {this.props.noteDate.toString()}: </label>
-                                <textarea className="form-control" value={this.state.note_text} onChange={this.onChangeNoteText} >
-                                </textarea>
+                                <Editor
+                                    apiKey="qapv6hfnxtm7zkn4x2h1alasz86je1rcynforifaa49w5l34"
+                                    value={this.state.note_text}
+                                    init={{
+                                    height: 300,
+                                    menubar: false,
+                                    plugins: [
+                                        'advlist autolink lists link image', 
+                                        'charmap print preview anchor help',
+                                        'searchreplace visualblocks code',
+                                        'insertdatetime media table paste wordcount'
+                                    ],
+                                    toolbar:
+                                        'undo redo | formatselect | bold italic | \
+                                        alignleft aligncenter alignright | \
+                                        bullist numlist outdent indent | help'
+                                    }}
+                                    onChange={this.onChangeNoteText}
+                                />
                             </div>
                             <div className="form-group">
                                 <input type="submit" value="Save Changes" className="btn btn-primary" />
