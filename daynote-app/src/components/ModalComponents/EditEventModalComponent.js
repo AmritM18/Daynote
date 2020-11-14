@@ -30,7 +30,7 @@ export default class EditTodo extends Component {
         }
     }
 
-    componentDidMount() {
+    /*componentDidMount() {
         axios.get('http://localhost:4000/events/'+this.props.match.params.id)
             .then(response => {
                 this.setState({
@@ -43,7 +43,7 @@ export default class EditTodo extends Component {
             .catch(function(error) {
                 console.log(error);
             })
-    }
+    }*/
 
     toggleShowClass() {
         if(this.state.showClass === "") {
@@ -120,6 +120,15 @@ export default class EditTodo extends Component {
             .catch(err => console.log(err));
     }
 
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if(prevState.showClass !== nextProps.showModal) {
+            return {
+                showClass: nextProps.showModal
+            };
+        }
+        return null;
+    }
+
     dateTimePickerStart() {
         let startDate = new Date(this.state.event_start);
         return <Datetime onChange={this.onChangeEventStart} value={startDate} initialValue={startDate} />;
@@ -141,48 +150,50 @@ export default class EditTodo extends Component {
     render() {
         return(
             <div>
-                <div>
-                    <div className="d-flex justify-content-between">
-                        <h4>Edit Event</h4>
-                        <button className="btn btn-primary" onClick={this.deleteEvent}>Delete</button>
+                <div className={'event-modal ' + this.state.showClass}>
+                    <div className="event-modal-content">
+                        <span className="close-button" onClick={this.props.closeModal}>&times;</span>
+                        <div className="d-flex justify-content-between">
+                            <h4>Edit Event</h4>
+                            <button className="btn btn-primary" onClick={this.deleteEvent}>Delete</button>
+                        </div>
+                        <form onSubmit={this.onSubmit}>
+                            <div className="form-group">
+                                <label>Event Name: </label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    value={this.state.event_title}
+                                    onChange={this.onChangeEventTitle}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Event Start: </label>
+                                {this.dateTimePickerStart()}
+                            </div>
+                            <div className="form-group">
+                                <label>Event End: </label>
+                                {this.dateTimePickerEnd()}
+                            </div>
+                            <div className="form-group">
+                                <label>Event Colour: </label>
+                                <select 
+                                    className="form-control"
+                                    value={this.state.event_colour}
+                                    onChange={this.onChangeEventColour}
+                                >
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <input type="submit" value="Edit Event" className="btn btn-primary" />
+                            </div>
+                        </form>
                     </div>
-                    <form onSubmit={this.onSubmit}>
-                        <div className="form-group">
-                            <label>Event Name: </label>
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                value={this.state.event_title}
-                                onChange={this.onChangeEventTitle}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Event Start: </label>
-                            {this.dateTimePickerStart()}
-                        </div>
-                        <div className="form-group">
-                            <label>Event End: </label>
-                            {this.dateTimePickerEnd()}
-                        </div>
-                        <div className="form-group">
-                            <label>Event Colour: </label>
-                            <select 
-                                className="form-control"
-                                value={this.state.event_colour}
-                                onChange={this.onChangeEventColour}
-                            >
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <input type="submit" value="Edit Event" className="btn btn-primary" />
-                            <Link to={"/"} className="btn">Cancel</Link>
-                        </div>
-                    </form>
                 </div>
             </div>
         );
