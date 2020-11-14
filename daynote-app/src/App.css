@@ -120,3 +120,8 @@ a:hover {
 .toggle-notes.toggled {
     transform: rotate(-180deg);
 }
+
+.event:hover {
+    color: #808080;
+    cursor: pointer;
+}
