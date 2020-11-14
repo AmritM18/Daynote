@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import axios from 'axios';
 import AddEventModalComponent from "../ModalComponents/AddEventModalComponent";
 import AddNoteModalComponent from "../ModalComponents/AddNoteModalComponent";
+import EditEventModalComponent from "../ModalComponents/EditEventModalComponent";
 import { Link } from 'react-router-dom';
 import '../../App.css';
 
@@ -35,7 +36,10 @@ export default class CalendarComponent extends Component {
             //   the noteId and noteDate (to pass to the modal)
             showNoteModal: "",
             noteId: null,
-            noteDate: ""
+            noteDate: "",
+            showEventModal: "",
+            eventId: null,
+            eventDate: ""
         };
     }
 
@@ -183,7 +187,8 @@ export default class CalendarComponent extends Component {
                 message = " Ends";
             }
             let monthYear = "" + (this.state.month+1) + this.state.year; 
-            events.push(<Link to={"/edit/"+monthYear+monthEvents[key][i]._id} key={i} className={"colour-"+monthEvents[key][i].event_colour}>{monthEvents[key][i].event_title}{message}</Link>);
+            //events.push(<Link to={"/edit/"+monthYear+monthEvents[key][i]._id} key={i} className={"colour-"+monthEvents[key][i].event_colour}>{monthEvents[key][i].event_title}{message}</Link>);
+            events.push(<div key={i} className={"colour-"+monthEvents[key][i].event_colour + " event"} onClick={() => this.editEvent(monthEvents[key][i], new Date(this.state.year, this.state.month, key+1))}>{monthEvents[key][i].event_title}{message}</div>)
         }
         return <div key={key}>{events}</div>;
     }
@@ -365,10 +370,21 @@ export default class CalendarComponent extends Component {
         }
     }
 
+    editEvent(event,date) {
+        console.log("Clicked");
+        console.log(event);
+        this.setState({
+            showEventModal: "show-events-modal",
+            eventDate: date,
+            eventId: event._id
+        })
+    }
+
     // Closes the note modal
     closeModal() {
         this.setState({
             showNoteModal: "",
+            showEventModal: ""
         })
     }
 
@@ -392,6 +408,7 @@ export default class CalendarComponent extends Component {
                 </div>
                 
                 <AddNoteModalComponent noteId={this.state.noteId} noteDate={this.state.noteDate} showModal={this.state.showNoteModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
+                <EditEventModalComponent eventId={this.state.eventId} eventDate={this.state.eventDate} showModal={this.state.showEventModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
 
                 <table className="table table-bordered">
                     <thead>
