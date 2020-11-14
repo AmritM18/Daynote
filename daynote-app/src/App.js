@@ -15,11 +15,9 @@ function App() {
         <Router>
           <div className="col-9">
             <Route path={["/", "/addNote"]} exact component={CalendarComponent}/>
-            <Route path="/edit/:id" component={EditEventModalComponent}/>
           </div>
           <div className="col-3 border-left">
-          <h1 className="text-center">My Notes</h1>
-          <Route path={["/", "/edit/:id"]} exact component={NotesComponent}/>
+          <Route path="/" exact component={NotesComponent}/>
           <Route path="/addNote" component={AddNoteComponent}/>
           </div>
         </Router>
