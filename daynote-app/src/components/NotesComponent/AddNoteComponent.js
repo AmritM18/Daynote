@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
+import { Editor } from '@tinymce/tinymce-react'; 
 import '../../App.css';
-
+import { Link } from 'react-router-dom';
 import "react-datetime/css/react-datetime.css";
 
 export default class EditTodo extends Component {
@@ -124,8 +125,44 @@ export default class EditTodo extends Component {
     render() {
         return(
             <div>
-                <h4>Add A Note</h4>
-                
+                <p className="month">Add Note</p>
+                <form onSubmit="">
+                    <div className="form-group">
+                        <label>Title </label>
+                        <input 
+                            type="text" 
+                            className="form-control"
+                            value=""
+                            onChange=""
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Note </label>
+                        <Editor
+                            apiKey="qapv6hfnxtm7zkn4x2h1alasz86je1rcynforifaa49w5l34"
+                            value=" "
+                            init={{
+                            height: 300,
+                            menubar: false,
+                            plugins: [
+                                'advlist autolink lists link image', 
+                                'charmap print preview anchor help',
+                                'searchreplace visualblocks code',
+                                'insertdatetime media table paste wordcount'
+                            ],
+                            toolbar:
+                                'undo redo | formatselect | bold italic | \
+                                alignleft aligncenter alignright | \
+                                bullist numlist outdent indent | help'
+                            }}
+                            onChange={this.onChangeNoteText}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input type="submit" value="Update" className="btn btn-primary mr-2" />
+                        <Link to="/" className="btn btn-primary">Cancel</Link>
+                    </div>
+                </form> 
             </div>
         );
     }

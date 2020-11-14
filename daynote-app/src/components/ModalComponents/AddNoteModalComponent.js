@@ -113,7 +113,7 @@ export default class AddNoteModalComponent extends Component {
                         <h4>Edit Note</h4>
                         <form onSubmit={this.onSubmit}>
                             <div className="form-group">
-                                <label>Note for {this.props.noteDate.toString()}: </label>
+                                <label>Note for {(this.props.noteDate.toString()).slice(0,15)}: </label>
                                 <Editor
                                     apiKey="qapv6hfnxtm7zkn4x2h1alasz86je1rcynforifaa49w5l34"
                                     value={this.state.note_text}
