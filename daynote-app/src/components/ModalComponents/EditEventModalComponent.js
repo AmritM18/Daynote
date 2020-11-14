@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 import '../../App.css';
 
 import Datetime from 'react-datetime';
@@ -26,24 +25,73 @@ export default class EditTodo extends Component {
             event_title: "",
             event_start: new Date(),
             event_end: new Date(),
-            event_colour: "1"
+            event_colour: "1",
+            eventId: null
         }
     }
 
-    /*componentDidMount() {
-        axios.get('http://localhost:4000/events/'+this.props.match.params.id)
-            .then(response => {
-                this.setState({
-                    event_title: response.data.event_title,
-                    event_start: response.data.event_start,
-                    event_end: response.data.event_end,
-                    event_colour: response.data.event_colour
+    componentDidUpdate(prevProps, prevState) {
+        if(prevProps.eventId !== this.props.eventId) {
+            console.log("EVENT CHANGED");
+
+            // Get the start month and event object id from props
+            let monthYear = "" + (this.props.eventDate.getMonth()+1) + this.props.eventDate.getFullYear();
+            let eventId = this.props.eventId;
+
+            // Fetch event and set state to the event properties
+            axios.get('http://localhost:4000/events/getMonth/'+monthYear)
+                .then(response => {
+                    events = response.data.events;
+                    
+                    events.forEach(element => {
+                        if(element._id === eventId) {
+                            this.setState({
+                                event_title: element.event_title,
+                                event_start: element.event_start,
+                                event_end: element.event_end,
+                                event_colour: element.event_colour
+                            })
+                        }
+                    });
+
+                    // Delete event from starting month
+                    let index = -1;
+                    for(let i = 0; i<events.length; i++) {
+                        if(events[i]._id === eventId) {
+                            index = i;
+                        }
+                    }
+                    events.splice(index,1);
+
+                    const newEventGroup = {
+                        monthYear: monthYear,
+                        events: events
+                    }
+
+                    console.log(newEventGroup);
+                    
+                    axios.post('http://localhost:4000/events/updateMonth/'+monthYear, newEventGroup)
+                        .then(res =>{
+                            console.log(res.data);
+
+                            this.setState({
+                                showClass: "",
+                                event_title: "",
+                                event_start: new Date(),
+                                event_end: new Date(),
+                                event_colour: "1"
+                            });
+                    
+                            this.props.updateEvents();
+                        })
+                        .catch(err => console.log(err));
                 })
-            })
-            .catch(function(error) {
-                console.log(error);
-            })
-    }*/
+                .catch(function(error) {
+                    console.log("Whoops");
+                    console.log(error);
+                })
+        }
+    }
 
     toggleShowClass() {
         if(this.state.showClass === "") {
@@ -98,12 +146,16 @@ export default class EditTodo extends Component {
 
         const modifiedEvent = {
             event_title: this.state.event_title,
-            event_start: this.state.event_start,
-            event_end: this.state.event_end,
+            event_start: new Date(this.state.event_start),
+            event_end: new Date(this.state.event_end),
             event_colour: this.state.event_colour,
         }
 
-        axios.post('http://localhost:4000/events/update/'+this.props.match.params.id, modifiedEvent)
+        console.log(modifiedEvent.event_start);
+        console.log(modifiedEvent.event_end);
+        console.log(modifiedEvent.event_start <= modifiedEvent.event_end);
+        if(modifiedEvent.event_start <= modifiedEvent.event_end){
+            axios.post('http://localhost:4000/events/update/'+this.props.match.params.id, modifiedEvent)
             .then(res => {
                 console.log(res.data);
 
@@ -118,6 +170,10 @@ export default class EditTodo extends Component {
                 window.location.href = "/";
             })
             .catch(err => console.log(err));
+        } 
+        else {
+            alert("Nope");
+        }
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
