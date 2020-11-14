@@ -126,14 +126,12 @@ export default class EditTodo extends Component {
         return(
             <div>
                 <p className="month">Add Note</p>
-                <form onSubmit="">
+                <form>
                     <div className="form-group">
                         <label>Title </label>
                         <input 
                             type="text" 
                             className="form-control"
-                            value=""
-                            onChange=""
                         />
                     </div>
                     <div className="form-group">
@@ -155,7 +153,6 @@ export default class EditTodo extends Component {
                                 alignleft aligncenter alignright | \
                                 bullist numlist outdent indent | help'
                             }}
-                            onChange={this.onChangeNoteText}
                         />
                     </div>
                     <div className="form-group">
