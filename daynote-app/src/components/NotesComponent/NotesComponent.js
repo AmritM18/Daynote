@@ -6,9 +6,12 @@ const Note = props => (
     <div>
         <div className="border">
             <div className="card-body">
-                <h5 className="card-title">{props.note.note_title}</h5>
+                <div className="d-flex justify-content-between">
+                    <h5 className="card-title">{props.note.note_title}</h5>
+                    <Link to={"/addNote/"+props.note._id} className="btn btn-primary">Edit</Link>
+                </div>
                 <hr/>
-                <p className="card-text">{props.note.note_text}</p>
+                <p className="card-text" dangerouslySetInnerHTML={{ __html: props.note.note_text }}></p>
             </div>
         </div>
     </div>

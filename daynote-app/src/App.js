@@ -14,11 +14,11 @@ function App() {
       <div className="row mt-2">
         <Router>
           <div className="col-9">
-            <Route path={["/", "/addNote"]} exact component={CalendarComponent}/>
+            <Route path={["/", "/addNote", "/addNote/:id"]} exact component={CalendarComponent}/>
           </div>
           <div className="col-3 border-left">
           <Route path="/" exact component={NotesComponent}/>
-          <Route path="/addNote" component={AddNoteComponent}/>
+          <Route path={["/addNote", "/addNote/:id"]} exact component={AddNoteComponent}/>
           </div>
         </Router>
       </div>
