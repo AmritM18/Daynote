@@ -39,10 +39,6 @@ export default class NotesComponent extends Component {
         })
     }
 
-    addNote() {
-        //<button className="btn" onClick={this.addNote}>Add</button>
-    }
-
     render() {
         return(
             <div>

@@ -62,44 +62,37 @@ export default class EditTodo extends Component {
             note_text: this.state.note_text,
         }
 
-        axios.post('http://localhost:4000/notes/addNote/', modifiedNote)
-            .then(res => {
-                console.log(res.data);
+        if (this.props.match.params.id) {
+            axios.post('http://localhost:4000/notes/updateNote/'+this.props.match.params.id, modifiedNote)
+                .then(res => {
+                    console.log(res.data);
 
-                this.setState({
-                    note_title: "",
-                    note_text: ""
-                });
-        
-                window.location.href = "/";
-            })
-            .catch(err => console.log(err));
-    }
-        /*
-        const modifiedEvent = {
-            event_title: this.state.event_title,
-            event_start: this.state.event_start,
-            event_end: this.state.event_end,
-            event_colour: this.state.event_colour,
+                    this.setState({
+                        note_title: "",
+                        note_text: ""
+                    });
+            
+                    window.location.href = "/";
+                })
+                .catch(err => console.log(err));
         }
+        else {
+            axios.post('http://localhost:4000/notes/addNote/', modifiedNote)
+                .then(res => {
+                    console.log(res.data);
 
-        axios.post('http://localhost:4000/events/update/'+this.props.match.params.id, modifiedEvent)
-            .then(res => {
-                console.log(res.data);
-
-                this.setState({
-                    event_title: "",
-                    event_start: new Date(),
-                    event_end: new Date(),
-                    event_colour: "1"
-                });
-        
-                window.location.href = "/";
-            })
-            .catch(err => console.log(err));
+                    this.setState({
+                        note_title: "",
+                        note_text: ""
+                    });
+            
+                    window.location.href = "/";
+                })
+                .catch(err => console.log(err));
+        }
     }
 
-    deleteEvent() {
+    /*deleteEvent() {
         axios.delete('http://localhost:4000/events/remove/'+this.props.match.params.id)
             .then(res => {
                 console.log(res.data);
@@ -107,8 +100,8 @@ export default class EditTodo extends Component {
             .catch(err => console.log(err));
 
         window.location.href = "/";
-    }
-*/
+    }*/
+
 
     render() {
         return(

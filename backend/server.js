@@ -61,6 +61,25 @@ routes.route('/addNote').post(function(req,res) {
         });
 });
 
+routes.route('/updateNote/:id').post(function(req,res) {
+    Note.findById(req.params.id, function(err, note) {
+        if(!note) {
+            res.status(404).send('data is not found');
+        }
+        else {
+            note.note_text = req.body.note_text;
+            note.note_title = req.body.note_title;
+
+            note.save().then(note => {
+                res.json('Note updated');
+            })
+            .catch(err => {
+                res.status(400).send("Update not possible");
+            });
+        }
+    });
+});
+
 app.use('/notes', routes);
 
 app.listen(PORT, function() {
