@@ -156,7 +156,6 @@ export default class EditTodo extends Component {
         // If originalStart != originalEnd, delete event entry from original end month
         let originalEndMonthYear = "" + (originalEnd.getMonth() + 1) + originalEnd.getFullYear();
         if(originalStartMonthYear !== originalEndMonthYear) {
-            console.log("I AM EXECUTING");
             const originalEndRes = await axios.get('http://localhost:4000/events/getMonth/'+originalEndMonthYear);
             events = originalEndRes.data.events;
             index = -1;
@@ -165,12 +164,9 @@ export default class EditTodo extends Component {
                 let eventEnd = new Date(events[i].event_end);
                 if(events[i].event_title === this.state.original_event_title && eventStart.setHours(0,0,0,0) === originalStart.setHours(0,0,0,0) && eventEnd.setHours(0,0,0,0) === originalEnd.setHours(0,0,0,0) && events[i].event_colour === this.state.original_event_colour) {
                     index = i;
-                    console.log("Found");
                 }
             }
-            console.log(events);
             events.splice(index, 1);
-            console.log(events);
             const oldEndEventGroup = {
                 monthYear: originalEndRes.data.monthYear,
                 events: events
@@ -235,12 +231,62 @@ export default class EditTodo extends Component {
         return <Datetime onChange={this.onChangeEventEnd} value={endDate} initialValue={endDate} />;
     }
 
-    deleteEvent() {
-        axios.delete('http://localhost:4000/events/remove/'+this.props.match.params.id)
-            .then(res => {
-                window.location.href = "/"; 
-            })
-            .catch(err => console.log(err));    
+    async deleteEvent() {
+        const originalStart = new Date(this.state.original_event_start);
+        const originalEnd = new Date(this.state.original_event_end);
+
+        // Delete original event entry from original start month
+        let originalStartMonthYear = "" + (originalStart.getMonth() + 1) + originalStart.getFullYear();
+        const originalStartRes = await axios.get('http://localhost:4000/events/getMonth/'+originalStartMonthYear);
+        let events = originalStartRes.data.events;
+        let index = -1;
+        for(let i = 0; i<events.length; i++) {
+            if(events[i]._id === this.props.eventId) {
+                index = i;
+            }
+        }
+        events.splice(index, 1);
+        const oldStartEventGroup = {
+            monthYear: originalStartRes.data.monthYear,
+            events: events
+        }
+        await axios.post('http://localhost:4000/events/updateMonth/'+originalStartMonthYear, oldStartEventGroup)
+
+        // If originalStart != originalEnd, delete event entry from original end month
+        let originalEndMonthYear = "" + (originalEnd.getMonth() + 1) + originalEnd.getFullYear();
+        if(originalStartMonthYear !== originalEndMonthYear) {
+            const originalEndRes = await axios.get('http://localhost:4000/events/getMonth/'+originalEndMonthYear);
+            events = originalEndRes.data.events;
+            index = -1;
+            for(let i = 0; i<events.length; i++) {
+                let eventStart = new Date(events[i].event_start);
+                let eventEnd = new Date(events[i].event_end);
+                if(events[i].event_title === this.state.original_event_title && eventStart.setHours(0,0,0,0) === originalStart.setHours(0,0,0,0) && eventEnd.setHours(0,0,0,0) === originalEnd.setHours(0,0,0,0) && events[i].event_colour === this.state.original_event_colour) {
+                    index = i;
+                }
+            }
+            events.splice(index, 1);
+            const oldEndEventGroup = {
+                monthYear: originalEndRes.data.monthYear,
+                events: events
+            }
+            await axios.post('http://localhost:4000/events/updateMonth/'+originalEndMonthYear, oldEndEventGroup)
+        }  
+
+        // All done - time to reset state, update the calendar, and close the modal
+        this.setState({
+            orignial_event_title: "",
+            orignial_event_start: new Date(),
+            orignial_event_end: new Date(),
+            orignial_event_colour: "1",
+            event_title: "",
+            event_start: new Date(),
+            event_end: new Date(),
+            event_colour: "1"
+        });
+
+        this.props.updateEvents();
+        this.props.closeModal();
     }
 
     render() {
