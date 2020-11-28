@@ -10,7 +10,6 @@ export default class EditTodo extends Component {
     constructor(props) {
         super(props);
 
-        this.toggleShowClass = this.toggleShowClass.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.onChangeEventTitle = this.onChangeEventTitle.bind(this);
         this.onChangeEventStart = this.onChangeEventStart.bind(this);
@@ -21,15 +20,18 @@ export default class EditTodo extends Component {
         this.deleteEvent = this.deleteEvent.bind(this);
 
         this.state = {
-            showClass: "",
+            original_event_title: "",
+            original_event_start: new Date(),
+            original_event_end: new Date(),
+            original_event_colour: "",
             event_title: "",
             event_start: new Date(),
             event_end: new Date(),
-            event_colour: "1",
-            eventId: null
+            event_colour: "1"
         }
     }
 
+    // This is called whenever an event is clicked to update the values in the modal accordingly
     componentDidUpdate(prevProps, prevState) {
         if(prevProps.eventId !== this.props.eventId) {
             console.log("EVENT CHANGED");
@@ -41,11 +43,15 @@ export default class EditTodo extends Component {
             // Fetch event and set state to the event properties
             axios.get('http://localhost:4000/events/getMonth/'+monthYear)
                 .then(response => {
-                    events = response.data.events;
+                    let events = response.data.events;
                     
                     events.forEach(element => {
                         if(element._id === eventId) {
                             this.setState({
+                                original_event_title: element.event_title,
+                                original_event_start: element.event_start,
+                                original_event_end: element.event_end,
+                                original_event_colour: element.event_colour,
                                 event_title: element.event_title,
                                 event_start: element.event_start,
                                 event_end: element.event_end,
@@ -53,60 +59,8 @@ export default class EditTodo extends Component {
                             })
                         }
                     });
-
-                    // Delete event from starting month
-                    let index = -1;
-                    for(let i = 0; i<events.length; i++) {
-                        if(events[i]._id === eventId) {
-                            index = i;
-                        }
-                    }
-                    events.splice(index,1);
-
-                    const newEventGroup = {
-                        monthYear: monthYear,
-                        events: events
-                    }
-
-                    console.log(newEventGroup);
-                    
-                    axios.post('http://localhost:4000/events/updateMonth/'+monthYear, newEventGroup)
-                        .then(res =>{
-                            console.log(res.data);
-
-                            this.setState({
-                                showClass: "",
-                                event_title: "",
-                                event_start: new Date(),
-                                event_end: new Date(),
-                                event_colour: "1"
-                            });
-                    
-                            this.props.updateEvents();
-                        })
-                        .catch(err => console.log(err));
                 })
-                .catch(function(error) {
-                    console.log("Whoops");
-                    console.log(error);
-                })
-        }
-    }
-
-    toggleShowClass() {
-        if(this.state.showClass === "") {
-            this.setState({
-                showClass: "show-events-modal"
-            });
-        }
-        else {
-            this.setState({
-                showClass: "",
-                event_title: "",
-                event_start: new Date(),
-                event_end: new Date(),
-                event_colour: "1"
-            });
+                .catch(err => console.log(err))
         }
     }
 
@@ -134,7 +88,7 @@ export default class EditTodo extends Component {
         });
     }
 
-    onSubmit(e) {
+    async onSubmit(e) {
         // prevents default submit behaviour of browser 
         e.preventDefault();
 
@@ -151,29 +105,115 @@ export default class EditTodo extends Component {
             event_colour: this.state.event_colour,
         }
 
-        console.log(modifiedEvent.event_start);
-        console.log(modifiedEvent.event_end);
-        console.log(modifiedEvent.event_start <= modifiedEvent.event_end);
-        if(modifiedEvent.event_start <= modifiedEvent.event_end){
-            axios.post('http://localhost:4000/events/update/'+this.props.match.params.id, modifiedEvent)
-            .then(res => {
-                console.log(res.data);
+        const originalStart = new Date(this.state.original_event_start);
+        const originalEnd = new Date(this.state.original_event_end);
+        const eventStart = new Date(this.state.event_start);
+        const eventEnd = new Date(this.state.event_end);
 
-                this.setState({
-                    showClass: "",
-                    event_title: "",
-                    event_start: new Date(),
-                    event_end: new Date(),
-                    event_colour: "1"
-                });
-        
-                window.location.href = "/";
-            })
-            .catch(err => console.log(err));
-        } 
-        else {
-            alert("Nope");
+        // Add entry for starting month if it doesn't exist
+        let startMonthYear = "" + (eventStart.getMonth() + 1) + eventStart.getFullYear();
+        const startExists = await axios.get('http://localhost:4000/events/exists/'+startMonthYear);
+        if(!startExists.data) {
+            const newEventGroup = {
+                monthYear: startMonthYear,
+                events: []
+            }
+
+            await axios.post('http://localhost:4000/events/addMonth', newEventGroup);
         }
+
+        // If start != end, add entry for ending month if it doesn't exist
+        let endMonthYear = "" + (eventEnd.getMonth() + 1) + eventEnd.getFullYear();
+        if(startMonthYear !== endMonthYear) {
+            const endExists = await axios.get('http://localhost:4000/events/exists/'+endMonthYear);
+            if(!endExists.data) {
+                const newEventGroup = {
+                    monthYear: endMonthYear,
+                    events: []
+                }
+
+                await axios.post('http://localhost:4000/events/addMonth', newEventGroup);
+            }
+        }
+
+        // Delete original event entry from original start month
+        let originalStartMonthYear = "" + (originalStart.getMonth() + 1) + originalStart.getFullYear();
+        const originalStartRes = await axios.get('http://localhost:4000/events/getMonth/'+originalStartMonthYear);
+        let events = originalStartRes.data.events;
+        let index = -1;
+        for(let i = 0; i<events.length; i++) {
+            if(events[i]._id === this.props.eventId) {
+                index = i;
+            }
+        }
+        events.splice(index, 1);
+        const oldStartEventGroup = {
+            monthYear: originalStartRes.data.monthYear,
+            events: events
+        }
+        await axios.post('http://localhost:4000/events/updateMonth/'+originalStartMonthYear, oldStartEventGroup)
+
+        // If originalStart != originalEnd, delete event entry from original end month
+        let originalEndMonthYear = "" + (originalEnd.getMonth() + 1) + originalEnd.getFullYear();
+        if(originalStartMonthYear !== originalEndMonthYear) {
+            console.log("I AM EXECUTING");
+            const originalEndRes = await axios.get('http://localhost:4000/events/getMonth/'+originalEndMonthYear);
+            events = originalEndRes.data.events;
+            index = -1;
+            for(let i = 0; i<events.length; i++) {
+                let eventStart = new Date(events[i].event_start);
+                let eventEnd = new Date(events[i].event_end);
+                if(events[i].event_title === this.state.original_event_title && eventStart.setHours(0,0,0,0) === originalStart.setHours(0,0,0,0) && eventEnd.setHours(0,0,0,0) === originalEnd.setHours(0,0,0,0) && events[i].event_colour === this.state.original_event_colour) {
+                    index = i;
+                    console.log("Found");
+                }
+            }
+            console.log(events);
+            events.splice(index, 1);
+            console.log(events);
+            const oldEndEventGroup = {
+                monthYear: originalEndRes.data.monthYear,
+                events: events
+            }
+            await axios.post('http://localhost:4000/events/updateMonth/'+originalEndMonthYear, oldEndEventGroup)
+        }
+
+        // Add event to new start month
+        const startRes = await axios.get('http://localhost:4000/events/getMonth/'+startMonthYear)
+        events = startRes.data.events;
+        events.push(modifiedEvent);
+        const startEventGroup = {
+            monthYear: startRes.data.monthYear,
+            events: events
+        }
+        await axios.post('http://localhost:4000/events/updateMonth/'+startMonthYear, startEventGroup)
+
+        // If new start month != new end month, add event to new end month
+        if(startMonthYear !== endMonthYear) {
+            const endRes = await axios.get('http://localhost:4000/events/getMonth/'+endMonthYear)
+            events = endRes.data.events;
+            events.push(modifiedEvent);
+            const endEventGroup = {
+                monthYear: endRes.data.monthYear,
+                events: events
+            }
+            await axios.post('http://localhost:4000/events/updateMonth/'+endMonthYear, endEventGroup)
+        }
+
+        // All done - time to reset state, update the calendar, and close the modal
+        this.setState({
+            orignial_event_title: "",
+            orignial_event_start: new Date(),
+            orignial_event_end: new Date(),
+            orignial_event_colour: "1",
+            event_title: "",
+            event_start: new Date(),
+            event_end: new Date(),
+            event_colour: "1"
+        });
+
+        this.props.updateEvents();
+        this.props.closeModal();
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
