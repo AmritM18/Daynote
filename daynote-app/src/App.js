@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 //import './App.css';
 
+import ParentComponent from "./components/ParentComponent"
 import CalendarComponent from "./components/CalendarComponent/CalendarComponent";
 import NotesComponent from "./components/NotesComponent/NotesComponent";
 import AddNoteComponent from "./components/NotesComponent/AddNoteComponent";
@@ -10,19 +11,10 @@ import EditEventModalComponent from "./components/ModalComponents/EditEventModal
 
 function App() {
   return (
-    <div className="container-fluid">
-      <div className="row mt-2">
-        <Router>
-          <div className="col-9">
-            <Route path={["/", "/addNote"]} exact component={CalendarComponent}/>
-          </div>
-          <div className="col-3 border-left">
-          <Route path="/" exact component={NotesComponent}/>
-          <Route path="/addNote" component={AddNoteComponent}/>
-          </div>
-        </Router>
-      </div>
-    </div>
+    /*<Router>
+      <Route path={["/"]} exact component={ParentComponent}/>
+    </Router>*/
+    <ParentComponent/>
   );
 }
 

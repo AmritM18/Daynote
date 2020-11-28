@@ -10,8 +10,9 @@ export default class CalendarComponent extends Component {
     constructor(props) {
         super(props);
 
-        this.prevMonth = this.prevMonth.bind(this);
+        /*this.prevMonth = this.prevMonth.bind(this);
         this.nextMonth = this.nextMonth.bind(this);
+        this.goToToday = this.goToToday.bind(this);*/
         this.getMonthString = this.getMonthString.bind(this);
         this.organizeMonthEvents = this.organizeMonthEvents.bind(this);
         this.getMonthNotes = this.getMonthNotes.bind(this);
@@ -22,13 +23,9 @@ export default class CalendarComponent extends Component {
         this.closeModal = this.closeModal.bind(this);
         this.toggleDailyNotes = this.toggleDailyNotes.bind(this);
         this.updateDailyNoteCells = this.updateDailyNoteCells.bind(this);
-        this.goToToday = this.goToToday.bind(this);
 
         this.state = {
             // Store the date of the current calendar view
-            day: new Date().getDate(),
-            month: new Date().getMonth(),
-            year: new Date().getFullYear(),
             // Store the current month's events and daily notes
             events: [],
             notes: [],
@@ -52,7 +49,7 @@ export default class CalendarComponent extends Component {
         // Makes sure previously opened notes remain visible once a note is updated
         this.updateDailyNoteCells();
         // If the month has been changed, fetch events and notes
-        if(prevState.month !== this.state.month) {
+        if(prevProps.month !== this.props.month) {
             this.fetchData();
         }
     }
@@ -109,7 +106,7 @@ export default class CalendarComponent extends Component {
             notes: []
         });
 
-        let monthYear = "" + (this.state.month+1) + this.state.year;
+        let monthYear = "" + (this.props.month+1) + this.props.year;
         axios.get('http://localhost:4000/events/getMonth/'+monthYear)
             .then(response => {
                 if(response.data) {
@@ -186,9 +183,9 @@ export default class CalendarComponent extends Component {
             else if(monthEvents[key][i+1] === "E") {
                 message = " Ends";
             }
-            let monthYear = "" + (this.state.month+1) + this.state.year; 
+            let monthYear = "" + (this.props.month+1) + this.props.year; 
             //events.push(<Link to={"/edit/"+monthYear+monthEvents[key][i]._id} key={i} className={"colour-"+monthEvents[key][i].event_colour}>{monthEvents[key][i].event_title}{message}</Link>);
-            events.push(<div key={i} className={"colour-"+monthEvents[key][i].event_colour + " event"} onClick={() => this.editEvent(monthEvents[key][i], new Date(this.state.year, this.state.month, key+1))}>{monthEvents[key][i].event_title}{message}</div>)
+            events.push(<div key={i} className={"colour-"+monthEvents[key][i].event_colour + " event"} onClick={() => this.editEvent(monthEvents[key][i], new Date(this.props.year, this.props.month, key+1))}>{monthEvents[key][i].event_title}{message}</div>)
         }
         return <div key={key}>{events}</div>;
     }
@@ -202,7 +199,7 @@ export default class CalendarComponent extends Component {
             monthEvents.push(events);
         }
 
-        let currentDate = new Date(this.state.year,this.state.month,this.state.day);
+        let currentDate = new Date(this.props.year,this.props.month,this.props.day);
 
         this.state.events.map(function(currentEvent, i) {
             let eventStartDate = new Date(currentEvent.event_start);
@@ -243,7 +240,7 @@ export default class CalendarComponent extends Component {
             monthNotes.push(events);
         }
 
-        let currentDate = new Date(this.state.year,this.state.month,this.state.day);
+        let currentDate = new Date(this.props.year,this.props.month,this.props.day);
 
         this.state.notes.map(function(currentNote, i) {
             let noteStartDate = new Date(currentNote.note_date);
@@ -261,7 +258,7 @@ export default class CalendarComponent extends Component {
     renderDates = () => {
         let calendar = [];
 
-        let date = new Date(this.state.year,this.state.month+1,this.state.day);
+        let date = new Date(this.props.year,this.props.month+1,this.props.day);
         let firstDay = new Date(date.getFullYear(), date.getMonth()-1, 1);
         let lastDay = new Date(date.getFullYear(), date.getMonth(), 0);
 
@@ -289,8 +286,8 @@ export default class CalendarComponent extends Component {
                 else {
                     if(numDays) {
                         let date = i * 7 + (j - startDay + 1);
-                        children.push(<td key={date + 7} className="date-cell py-0">{`${date}`}<br/>{this.getEvents(new Date(this.state.year,this.state.month,date),monthEvents)}</td>);
-                        childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell py-0" onClick={() => this.addNote(monthNotes[date-1],new Date(this.state.year,this.state.month,date))}>{this.getNotes(new Date(this.state.year,this.state.month,date),monthNotes)}</td>);
+                        children.push(<td key={date + 7} className="date-cell py-0">{`${date}`}<br/>{this.getEvents(new Date(this.props.year,this.props.month,date),monthEvents)}</td>);
+                        childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell py-0" onClick={() => this.addNote(monthNotes[date-1],new Date(this.props.year,this.props.month,date))}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</td>);
                         numDays--;
                     }
                     else {
@@ -306,42 +303,33 @@ export default class CalendarComponent extends Component {
         return calendar;
     }
 
-    prevMonth() {
-        if(this.getMonthString(this.state.month) === "January") {
-            this.setState({
-                month: this.state.month + 11,
-                year: this.state.year - 1
-            });
-        }
-        else {
-            this.setState({
-                month: this.state.month - 1
-            });
-        }
+    /*prevMonth() {
+        this.props.prevMonth();
+
+        this.setState({
+            month: this.props.month,
+            year: this.props.year
+        });
     }
 
     nextMonth() {
-        if(this.getMonthString(this.state.month) === "December") {
-            this.setState({
-                month: this.state.month - 11,
-                year: this.state.year + 1
-            });
-        }
-        else {
-            this.setState({
-                month: this.state.month + 1
-            });
-        }
+        this.props.nextMonth();
+
+        this.setState({
+            month: this.props.month,
+            year: this.props.year
+        });
     }
 
     goToToday() {
-        this.setState({
-            day: new Date().getDate(),
-            month: new Date().getMonth(),
-            year: new Date().getFullYear()
-        })
-    }
+        this.props.goToToday();
 
+        this.setState({
+            month: this.props.month,
+            year: this.props.year
+        });
+    }*/
+    
     // Month number to month string
     getMonthString(month) {
         const months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
@@ -390,13 +378,13 @@ export default class CalendarComponent extends Component {
                 <div className="d-flex justify-content-between">
                     <div className="d-flex align-items-center">
                         <div className="btn-group" role="group" aria-label="Basic example">
-                            <button className="btn border" onClick={this.prevMonth}>← Prev</button>
-                            <button className="btn border" onClick={this.goToToday}>Today</button>
-                            <button className="btn border" onClick={this.nextMonth}>Next →</button>
+                            <button className="btn border" onClick={this.props.prevMonth}>← Prev</button>
+                            <button className="btn border" onClick={this.props.goToToday}>Today</button>
+                            <button className="btn border" onClick={this.props.nextMonth}>Next →</button>
                         </div>
                     </div>
                     <div>
-                        <p className="text-center month">{`${this.getMonthString(this.state.month)} ${this.state.year}`}</p>
+                        <p className="text-center month">{`${this.getMonthString(this.props.month)} ${this.props.year}`}</p>
                     </div>
                     <div className="d-flex align-items-center">
                         <AddEventModalComponent updateEvents={this.fetchData} />

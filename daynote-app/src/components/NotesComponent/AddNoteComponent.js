@@ -3,65 +3,49 @@ import { Editor } from '@tinymce/tinymce-react';
 import '../../App.css';
 import { Link } from 'react-router-dom';
 import "react-datetime/css/react-datetime.css";
+import axios from 'axios';
 
 export default class EditTodo extends Component {
 
-    //constructor(props) {
-        //super(props);
+    constructor(props) {
+        super(props);
 
-        /*this.onSubmit = this.onSubmit.bind(this);
-        this.onChangeEventTitle = this.onChangeEventTitle.bind(this);
-        this.onChangeEventStart = this.onChangeEventStart.bind(this);
-        this.onChangeEventEnd = this.onChangeEventEnd.bind(this);
-        this.onChangeEventColour = this.onChangeEventColour.bind(this);
-        this.dateTimePickerStart = this.dateTimePickerStart.bind(this);
-        this.dateTimePickerEnd = this.dateTimePickerEnd.bind(this);
-        this.deleteEvent = this.deleteEvent.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
+        this.onChangeNoteTitle = this.onChangeNoteTitle.bind(this);
+        this.onChangeNoteText = this.onChangeNoteText.bind(this);
 
         this.state = {
-            event_title: "",
-            event_start: new Date(),
-            event_end: new Date(),
-            event_colour: "1"
-        }*/
-    //}
+            note_title: "",
+            note_text: "",
+        }
+    }
 
-    /*componentDidMount() {
-        axios.get('http://localhost:4000/events/'+this.props.match.params.id)
-            .then(response => {
-                this.setState({
-                    event_title: response.data.event_title,
-                    event_start: response.data.event_start,
-                    event_end: response.data.event_end,
-                    event_colour: response.data.event_colour
+    componentDidMount() {
+        console.log(this.props.match.params.id);
+        if (this.props.match.params.id) {
+            const id = this.props.match.params.id;
+            axios.get('http://localhost:4000/notes/'+id)
+                .then(response => {
+                    this.setState({
+                        note_title: response.data.note_title,
+                        note_text: response.data.note_text,
+                    })
                 })
-            })
-            .catch(function(error) {
-                console.log(error);
-            })
+                .catch(function(error) {
+                    console.log(error);
+                })
+        }
     }
 
-    onChangeEventTitle(e) {
+    onChangeNoteTitle(e) {
         this.setState({
-            event_title: e.target.value
+            note_title: e.target.value
         });
     }
 
-    onChangeEventStart(e) {
+    onChangeNoteText(e) {
         this.setState({
-            event_start: e._d
-        });
-    }
-
-    onChangeEventEnd(e) {
-        this.setState({
-            event_end: e._d
-        });
-    }
-
-    onChangeEventColour(e) {
-        this.setState({
-            event_colour: e.target.value
+            note_text: e.target.getContent()
         });
     }
 
@@ -69,36 +53,46 @@ export default class EditTodo extends Component {
         // prevents default submit behaviour of browser 
         e.preventDefault();
 
-        console.log(`Form submitted:`);
-        console.log(`Title: ${this.state.event_title}`);
-        console.log(`Start: ${this.state.event_start}`);
-        console.log(`End: ${this.state.event_end}`);
-        console.log(`Colour: ${this.state.event_colour}`);
+        console.log(`Note form submitted:`);
+        console.log(`Title: ${this.state.note_title}`);
+        console.log(`Text: ${this.state.note_text}`);
 
-        const modifiedEvent = {
-            event_title: this.state.event_title,
-            event_start: this.state.event_start,
-            event_end: this.state.event_end,
-            event_colour: this.state.event_colour,
+        const modifiedNote = {
+            note_title: this.state.note_title,
+            note_text: this.state.note_text,
         }
 
-        axios.post('http://localhost:4000/events/update/'+this.props.match.params.id, modifiedEvent)
-            .then(res => {
-                console.log(res.data);
+        if (this.props.match.params.id) {
+            axios.post('http://localhost:4000/notes/updateNote/'+this.props.match.params.id, modifiedNote)
+                .then(res => {
+                    console.log(res.data);
 
-                this.setState({
-                    event_title: "",
-                    event_start: new Date(),
-                    event_end: new Date(),
-                    event_colour: "1"
-                });
-        
-                window.location.href = "/";
-            })
-            .catch(err => console.log(err));
+                    this.setState({
+                        note_title: "",
+                        note_text: ""
+                    });
+            
+                    window.location.href = "/";
+                })
+                .catch(err => console.log(err));
+        }
+        else {
+            axios.post('http://localhost:4000/notes/addNote/', modifiedNote)
+                .then(res => {
+                    console.log(res.data);
+
+                    this.setState({
+                        note_title: "",
+                        note_text: ""
+                    });
+            
+                    window.location.href = "/";
+                })
+                .catch(err => console.log(err));
+        }
     }
 
-    deleteEvent() {
+    /*deleteEvent() {
         axios.delete('http://localhost:4000/events/remove/'+this.props.match.params.id)
             .then(res => {
                 console.log(res.data);
@@ -106,39 +100,28 @@ export default class EditTodo extends Component {
             .catch(err => console.log(err));
 
         window.location.href = "/";
-    }
-
-    dateTimePickerStart() {
-        let inputProps = {
-            value: this.state.event_start
-        };
-        return <Datetime onChange={this.onChangeEventStart} inputProps={inputProps} />;
-    }
-
-    dateTimePickerEnd() {
-        let inputProps = {
-            value: this.state.event_end
-        };
-        return <Datetime onChange={this.onChangeEventEnd} inputProps={inputProps} />;
     }*/
+
 
     render() {
         return(
             <div>
                 <p className="month">Add Note</p>
-                <form>
+                <form onSubmit={this.onSubmit}>
                     <div className="form-group">
                         <label>Title </label>
                         <input 
                             type="text" 
                             className="form-control"
+                            value={this.state.note_title}
+                            onChange={this.onChangeNoteTitle}
                         />
                     </div>
                     <div className="form-group">
                         <label>Note </label>
                         <Editor
                             apiKey="qapv6hfnxtm7zkn4x2h1alasz86je1rcynforifaa49w5l34"
-                            value=" "
+                            value={this.state.note_text}
                             init={{
                             height: 300,
                             menubar: false,
@@ -153,6 +136,7 @@ export default class EditTodo extends Component {
                                 alignleft aligncenter alignright | \
                                 bullist numlist outdent indent | help'
                             }}
+                            onChange={this.onChangeNoteText}
                         />
                     </div>
                     <div className="form-group">
