@@ -339,8 +339,6 @@ export default class CalendarComponent extends Component {
     // addNote updates note modal state fields to pass as props to AddNoteModalComponent
     //   note is an array containing at most one note object
     addNote(note,date) {
-        console.log("Clicked");
-        console.log(note);
         if(note.length !== 0) {
             // A note already exists, we edit
             this.setState({
@@ -359,8 +357,6 @@ export default class CalendarComponent extends Component {
     }
 
     editEvent(event,date) {
-        console.log("Clicked");
-        console.log(event);
         this.setState({
             showEventModal: "show-events-modal",
             eventDate: date,
