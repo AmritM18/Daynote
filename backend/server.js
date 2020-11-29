@@ -13,6 +13,7 @@ let Event = require('./event.model');
 let DailyNote = require('./dailyNote.model');
 
 let EventGroup = require('./event.model');
+let NoteGroup = require('./note.model');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -50,6 +51,49 @@ routes.route('/:id').get(function(req,res) {
     });
 });*/
 
+routes.route('/remove/:id').delete(function(req,res) {
+    Note.findByIdAndRemove(req.params.id, (err, event) => {
+        if (err) return res.status(500).send(err);
+        const response = {
+            message: "Note successfully deleted",
+            id: req.params.id
+        };
+        return res.status(200).send(response);
+    });
+});
+
+// NEW
+routes.route('/getNoteMonth/:month').get(function(req,res) {
+    let month = req.params.month;
+    NoteGroup.findOne({monthYear: month}, function(err, obj){
+        res.json(obj);
+    })
+});
+
+// NEW
+routes.route('/noteExists/:month').get(function(req,res) {
+    let month = req.params.month;
+    NoteGroup.exists({monthYear: month}, function(err, result){
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(result);
+        }
+    });
+});
+
+// NEW
+routes.route('/addNoteMonth/').post(function(req,res) {
+    let noteGroup = new NoteGroup(req.body);
+    noteGroup.save()
+        .then(noteGroup => {
+            res.status(200).json({'noteGroup': 'noteGroup added successfully'});
+        })
+        .catch(err => {
+            res.status(400).send('adding new noteGroup failed');
+        });
+});
+
 routes.route('/addNote').post(function(req,res) {
     let note = new Note(req.body);
     note.save()
@@ -59,6 +103,27 @@ routes.route('/addNote').post(function(req,res) {
         .catch(err => {
             res.status(400).send('adding new note failed');
         });
+});
+
+// NEW
+routes.route('/updateNoteMonth/:month').post(function(req,res) {
+    let month = req.params.month;
+    NoteGroup.findOne({monthYear: month}, function(err, noteGroup) {
+        if(!noteGroup) {
+            res.status(404).send('data is not found');
+        }
+        else {
+            noteGroup.monthYear = req.body.monthYear;
+            noteGroup.notes = req.body.notes;
+
+            noteGroup.save().then(noteGroup => {
+                res.json('Note updated');
+            })
+            .catch(err => {
+                res.status(400).send("Update not possible");
+            });
+        }
+    })
 });
 
 routes.route('/updateNote/:id').post(function(req,res) {
@@ -79,6 +144,17 @@ routes.route('/updateNote/:id').post(function(req,res) {
         }
     });
 });
+
+/*routes.route('/remove/:id').delete(function(req,res) {
+    Note.findByIdAndRemove(req.params.id, (err, note) => {
+        if (err) return res.status(500).send(err);
+        const response = {
+            message: "Event successfully deleted",
+            id: req.params.id
+        };
+        return res.status(200).send(response);
+    });
+});*/
 
 app.use('/notes', routes);
 

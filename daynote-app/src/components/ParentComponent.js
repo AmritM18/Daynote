@@ -86,7 +86,12 @@ export default class ParentComponent extends Component {
                         <NotesComponent month={this.state.month} year={this.state.year}/>
                     )}
                   />
-                  <Route path={["/addNote", "/addNote/:id"]} exact component={AddNoteComponent}/>
+                  <Route 
+                    exact path={["/addNote", "/addNote/:id"]} 
+                    render={(routeParams) => (
+                        <AddNoteComponent routeParams={routeParams} month={this.state.month} year={this.state.year}/>
+                    )}
+                  />
                   </div>
                 </Router>
               </div>
