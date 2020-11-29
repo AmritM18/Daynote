@@ -13,6 +13,7 @@ export default class EditTodo extends Component {
         this.onSubmit = this.onSubmit.bind(this);
         this.onChangeNoteTitle = this.onChangeNoteTitle.bind(this);
         this.onChangeNoteText = this.onChangeNoteText.bind(this);
+        this.deleteNote = this.deleteNote.bind(this);
 
         this.state = {
             note_title: "",
@@ -20,20 +21,24 @@ export default class EditTodo extends Component {
         }
     }
 
-    componentDidMount() {
-        console.log(this.props.match.params.id);
-        if (this.props.match.params.id) {
-            const id = this.props.match.params.id;
-            axios.get('http://localhost:4000/notes/'+id)
-                .then(response => {
-                    this.setState({
-                        note_title: response.data.note_title,
-                        note_text: response.data.note_text,
-                    })
-                })
-                .catch(function(error) {
-                    console.log(error);
-                })
+    async componentDidMount() {
+        // Need to fetch the month and then fetch this note by it's id
+        console.log(this.props)
+        let monthYear = "" + (this.props.month+1) + this.props.year; 
+        const monthExists = await axios.get('http://localhost:4000/notes/noteExists/'+monthYear);
+        if (monthExists.data) {
+            if (this.props.routeParams.match.params.id) {
+                const noteData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear)
+                let notes = noteData.data.notes;
+                for(let i = 0; i < notes.length; i++) {
+                    if (notes[i]._id === this.props.routeParams.match.params.id) {
+                        this.setState({
+                            note_title: notes[i].note_title,
+                            note_text: notes[i].note_text,
+                        })
+                    }
+                }
+            }
         }
     }
 
@@ -49,7 +54,7 @@ export default class EditTodo extends Component {
         });
     }
 
-    onSubmit(e) {
+    async onSubmit(e) {
         // prevents default submit behaviour of browser 
         e.preventDefault();
 
@@ -62,45 +67,75 @@ export default class EditTodo extends Component {
             note_text: this.state.note_text,
         }
 
-        if (this.props.match.params.id) {
-            axios.post('http://localhost:4000/notes/updateNote/'+this.props.match.params.id, modifiedNote)
-                .then(res => {
-                    console.log(res.data);
-
-                    this.setState({
-                        note_title: "",
-                        note_text: ""
-                    });
-            
-                    window.location.href = "/";
-                })
-                .catch(err => console.log(err));
+        let monthYear = "" + (this.props.month+1) + this.props.year;
+        const monthExists = await axios.get('http://localhost:4000/notes/noteExists/'+monthYear)
+        
+        // if no month exists, create the month entry and add the note
+        if (!monthExists.data) {
+            const newNoteGroup = {
+                monthYear: monthYear,
+                notes: [modifiedNote]
+            }
+            await axios.post('http://localhost:4000/notes/addNoteMonth/', newNoteGroup);
         }
+        // otherwise the month exists
         else {
-            axios.post('http://localhost:4000/notes/addNote/', modifiedNote)
-                .then(res => {
-                    console.log(res.data);
-
-                    this.setState({
-                        note_title: "",
-                        note_text: ""
-                    });
-            
-                    window.location.href = "/";
-                })
-                .catch(err => console.log(err));
+            // need to edit the note
+            // edit
+            if (this.props.routeParams.match.params.id) {
+                const getNoteGroupData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear);
+                let notes = getNoteGroupData.data.notes;
+                let index = -1;
+                for(let i = 0; i < notes.length; i++) {
+                    if (notes[i]._id === this.props.routeParams.match.params.id) {
+                        index = i;
+                    }
+                }
+                notes.splice(index, 1);
+                notes.push(modifiedNote);
+                const newNoteGroup = {
+                    monthYear: getNoteGroupData.data.monthYear,
+                    notes: notes
+                }
+                await axios.post('http://localhost:4000/notes/updateNoteMonth/'+monthYear, newNoteGroup)
+            } 
+            // add the note to existing month
+            else {
+                const getNoteGroupData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear);
+                let notes = getNoteGroupData.data.notes;
+                notes.push(modifiedNote);
+                const newNoteGroup = {
+                    monthYear: getNoteGroupData.data.monthYear,
+                    notes: notes
+                }
+                await axios.post('http://localhost:4000/notes/updateNoteMonth/'+monthYear, newNoteGroup)
+            }
         }
+        this.props.routeParams.history.push('/');
     }
 
-    /*deleteEvent() {
-        axios.delete('http://localhost:4000/events/remove/'+this.props.match.params.id)
-            .then(res => {
-                console.log(res.data);
-            })
-            .catch(err => console.log(err));
+    async deleteNote() {
+        let monthYear = "" + (this.props.month+1) + this.props.year;
+        const getNoteGroupData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear);
+        let notes = getNoteGroupData.data.notes;
+        console.log(notes);
+        let index = -1;
+        for(let i = 0; i < notes.length; i++) {
+            if (notes[i]._id === this.props.routeParams.match.params.id) {
+                index = i;
+                console.log(notes[i].note_title);
+            }
+        }
+        notes.splice(index, 1);
+        const newNoteGroup = {
+            monthYear: getNoteGroupData.data.monthYear,
+            notes: notes
+        }
+        console.log(newNoteGroup.notes);
+        await axios.post('http://localhost:4000/notes/updateNoteMonth/'+monthYear, newNoteGroup)
 
-        window.location.href = "/";
-    }*/
+        this.props.routeParams.history.push('/');
+    }
 
 
     render() {
@@ -141,7 +176,8 @@ export default class EditTodo extends Component {
                     </div>
                     <div className="form-group">
                         <input type="submit" value="Update" className="btn btn-primary mr-2" />
-                        <Link to="/" className="btn btn-primary">Cancel</Link>
+                        <Link to="/" className="btn btn-primary mr-2">Cancel</Link>
+                        <button className="btn btn-primary" onClick={this.deleteNote}>Delete</button>
                     </div>
                 </form> 
             </div>

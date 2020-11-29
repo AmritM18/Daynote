@@ -20,17 +20,44 @@ const Note = props => (
 export default class NotesComponent extends Component {
     constructor(props) {
         super(props);
-        this.state = {notes: []};
+        this.state = {
+            notes: []
+        };
     }
 
-    componentDidMount() {
-        axios.get('http://localhost:4000/notes/')
-            .then(response => {
-                this.setState({notes: response.data});
+    async componentDidMount() {
+        // Want to change it to get this months notes
+        let monthYear =  "" + (this.props.month+1) + this.props.year;
+        const monthExists = await axios.get('http://localhost:4000/notes/noteExists/'+monthYear)
+        if (monthExists.data) {
+            const noteData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear)
+            this.setState({
+                notes: noteData.data.notes,
             })
-            .catch(function (error) {
-                console.log(error);
+        }
+        else {
+            this.setState({
+                notes: [],
             })
+        }                   
+    }
+
+    async componentDidUpdate(prevProps, prevState) {
+        if (prevProps !== this.props) {
+            let monthYear =  "" + (this.props.month+1) + this.props.year;
+            const monthExists = await axios.get('http://localhost:4000/notes/noteExists/'+monthYear)
+            if (monthExists.data) {
+                const noteData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear)
+                this.setState({
+                    notes: noteData.data.notes,
+                })
+            }
+            else {
+                this.setState({
+                    notes: [],
+                })
+            }   
+        } 
     }
 
     getNotes() {

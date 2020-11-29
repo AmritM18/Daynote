@@ -10,4 +10,14 @@ let Note = new Schema({
     }
 });
 
+let NoteGroup = new Schema({
+    monthYear: {
+        type: String
+    },
+    notes: {
+        type: [ Note ]
+    }
+});
+
 module.exports = mongoose.model('Note', Note);
+module.exports = mongoose.model('NoteGroup', NoteGroup)
