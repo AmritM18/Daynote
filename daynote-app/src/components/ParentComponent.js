@@ -69,11 +69,11 @@ export default class ParentComponent extends Component {
     render() {
         return (
             <div className="container-fluid">
-              <div className="row mt-2">
+              <div className="row">
                 <Router>
                   <div className="col-9">
                     <Route 
-                        exact path={["/", "/addNote", "/addNote/:id"]}
+                        exact path={["/", "/addNote", "/addNote/:id", "/addDailyNote/:date", "/addDailyNote/:id/:date"]}
                         render={(props) => (
                             <CalendarComponent day={this.state.day} month={this.state.month} year={this.state.year} prevMonth={this.prevMonth} nextMonth={this.nextMonth} goToToday={this.goToToday}/>
                         )}    
@@ -87,7 +87,7 @@ export default class ParentComponent extends Component {
                     )}
                   />
                   <Route 
-                    exact path={["/addNote", "/addNote/:id"]} 
+                    exact path={["/addNote", "/addNote/:id", "/addDailyNote/:date", "/addDailyNote/:id/:date"]} 
                     render={(routeParams) => (
                         <AddNoteComponent routeParams={routeParams} month={this.state.month} year={this.state.year}/>
                     )}
