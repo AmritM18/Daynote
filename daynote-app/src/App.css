@@ -1,5 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap');
+
 html {
     scroll-behavior: smooth;
+}
+
+
+.calendar-component {
+    width: 83%;
+    background-color: #F3F3F3;
+    min-height: 100vh;
+    padding: 25px 45px;
+}
+
+.notes-component {
+    width: 17%;
+    background-color: #5F6670;
+    min-height: 100vh;
 }
 
 .event-modal {
@@ -82,6 +100,7 @@ a:hover {
 
 .date-cell {
     height: 4.5em;
+    text-align: center;
 }
 
 .active-note-cell:hover {
@@ -92,11 +111,36 @@ a:hover {
     table-layout: fixed;
 }
 
+.calendar {
+    margin-top: 30px;
+}
+
 .month {
     font-size: 36px;
+    color: #899096;
+    text-transform: uppercase;
+    font-family: 'Quicksand', sans-serif;
     margin: 0;
 }
   
+.today-button {
+    font-family: 'Hind Siliguri', sans-serif;
+    color: #F4A8AB;
+    border: 0.9px solid #F4A8AB;
+    padding: 3.5px 14px; 
+    border-radius: 4px;
+}
+
+.prev-month {
+    margin: 0px 32px;
+}
+
+th {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 400;
+    text-align: center;
+}
+
 .panel, .panel * {
     overflow: hidden;
     height: 0px;
@@ -143,4 +187,19 @@ p.show-note, ul.show-note, li.show-note {
 .card-title {
     padding-top: 20px;
     margin-top: -20px;
+}
+
+/* NotesComponent styling */
+.sticky-note {
+    margin: 3vh 2vw;
+    padding: 15px 25px 15px 15px;
+    height: 220px;
+}
+
+.sticky-note:nth-of-type(even) {
+    background-color: rgb(53, 174, 230);
+}
+
+.sticky-note:nth-of-type(odd) {
+    background-color: #742528;
 }

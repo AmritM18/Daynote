@@ -4,23 +4,15 @@ import axios from 'axios';
 
 const Note = props => (
     <div>
-        <div className="border">
-            <div className="card-body">
-                <div className="d-flex justify-content-between">
-                {
-                    (props.note.note_title)
-                    ? <h5 className="card-title">{props.note.note_title}</h5> 
-                    : <h5 className="card-title" id={new Date(props.note.note_date).getDate()}>{new Date(props.note.note_date).toDateString()}</h5>
-                }
-                {
-                    (props.note.note_title)
-                    ? <Link to={"/addNote/"+props.note._id} className="btn btn-primary">Edit</Link>
-                    : <Link to={"/addDailyNote/"+props.note._id+"/"+new Date(props.note.note_date).getDate()} className="btn btn-primary">Edit</Link>
-                }
-                </div>
-                <hr/>
-                <p className="card-text" dangerouslySetInnerHTML={{ __html: props.note.note_text }}></p>
+        <div className="sticky-note">
+            <div className="">
+            {
+                (props.note.note_title)
+                ? <div className="d-flex justify-content-between"><p>{props.note.note_title}</p> <Link to={"/addNote/"+props.note._id}><img src="assets/sticky-edit-button.svg"></img></Link></div> 
+                : <div className="d-flex justify-content-between"><p id={new Date(props.note.note_date).getDate()}>{new Date(props.note.note_date).toDateString()}</p> <Link to={"/addDailyNote/"+props.note._id+"/"+new Date(props.note.note_date).getDate()} className="btn btn-primary">Edit</Link></div>
+            }
             </div>
+            <p className="" dangerouslySetInnerHTML={{ __html: props.note.note_text }}></p>
         </div>
     </div>
 )

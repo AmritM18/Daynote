@@ -63,15 +63,12 @@ export default class ParentComponent extends Component {
         })
     }
     
-    //render={(props) => (
-
-    //)}
     render() {
         return (
             <div className="container-fluid">
               <div className="row">
                 <Router>
-                  <div className="col-9">
+                  <div className="calendar-component">
                     <Route 
                         exact path={["/", "/addNote", "/addNote/:id", "/addDailyNote/:date", "/addDailyNote/:id/:date"]}
                         render={(props) => (
@@ -79,19 +76,19 @@ export default class ParentComponent extends Component {
                         )}    
                     />    
                   </div>
-                  <div className="col-3 border-left">
-                  <Route 
-                    exact path="/"
-                    render={(props) => (
-                        <NotesComponent month={this.state.month} year={this.state.year}/>
-                    )}
-                  />
-                  <Route 
-                    exact path={["/addNote", "/addNote/:id", "/addDailyNote/:date", "/addDailyNote/:id/:date"]} 
-                    render={(routeParams) => (
-                        <AddNoteComponent routeParams={routeParams} month={this.state.month} year={this.state.year}/>
-                    )}
-                  />
+                  <div className="notes-component">
+                    <Route 
+                        exact path="/"
+                        render={(props) => (
+                            <NotesComponent month={this.state.month} year={this.state.year}/>
+                        )}
+                    />
+                    <Route 
+                        exact path={["/addNote", "/addNote/:id", "/addDailyNote/:date", "/addDailyNote/:id/:date"]} 
+                        render={(routeParams) => (
+                            <AddNoteComponent routeParams={routeParams} month={this.state.month} year={this.state.year}/>
+                        )}
+                    />
                   </div>
                 </Router>
               </div>

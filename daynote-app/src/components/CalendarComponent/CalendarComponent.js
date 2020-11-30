@@ -10,9 +10,6 @@ export default class CalendarComponent extends Component {
     constructor(props) {
         super(props);
 
-        /*this.prevMonth = this.prevMonth.bind(this);
-        this.nextMonth = this.nextMonth.bind(this);
-        this.goToToday = this.goToToday.bind(this);*/
         this.getMonthString = this.getMonthString.bind(this);
         this.organizeMonthEvents = this.organizeMonthEvents.bind(this);
         this.getMonthNotes = this.getMonthNotes.bind(this);
@@ -275,7 +272,7 @@ export default class CalendarComponent extends Component {
             let children = [];
             let childrenNotes = [];
 
-            children.push(<td key={-1} className="date-cell p-0 text-center align-middle"><img src="assets/down-arrow.png" height="15" alt="" className="toggle-notes" onClick={() => this.toggleDailyNotes(i)} /></td>);
+            children.push(<td key={-1} className="date-cell p-0 text-center align-middle"><img src="assets/down-arrow.svg" alt="" className="toggle-notes" onClick={() => this.toggleDailyNotes(i)} /></td>);
             childrenNotes.push(<td key={-1} className="note-cell p-0 bg-transparent"></td>);
 
             for (let j = 0; j < 7; j++) {
@@ -359,25 +356,23 @@ export default class CalendarComponent extends Component {
         return(
             <div>
                 <div className="d-flex justify-content-between">
-                    <div className="d-flex align-items-center">
-                        <div className="btn-group" role="group" aria-label="Basic example">
-                            <button className="btn border" onClick={this.props.prevMonth}>← Prev</button>
-                            <button className="btn border" onClick={this.props.goToToday}>Today</button>
-                            <button className="btn border" onClick={this.props.nextMonth}>Next →</button>
-                        </div>
-                    </div>
                     <div>
                         <p className="text-center month">{`${this.getMonthString(this.props.month)} ${this.props.year}`}</p>
                     </div>
                     <div className="d-flex align-items-center">
                         <AddEventModalComponent updateEvents={this.fetchData} />
                     </div>
+                    <div className="d-flex align-items-center">
+                        <div className="today-button" onClick={this.props.goToToday}>Today</div>
+                        <img className="prev-month" src="assets/left-arrow.svg" onClick={this.props.prevMonth} />
+                        <img src="assets/right-arrow.svg" onClick={this.props.nextMonth} />
+                    </div>
                 </div>
                 
                 <AddNoteModalComponent noteId={this.state.noteId} noteDate={this.state.noteDate} showModal={this.state.showNoteModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
                 <EditEventModalComponent eventId={this.state.eventId} eventDate={this.state.eventDate} showModal={this.state.showEventModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
 
-                <table className="table table-bordered">
+                <table className="table table-borderless calendar">
                     <thead>
                         <tr>
                             <th scope="col" className="note-col"></th>
