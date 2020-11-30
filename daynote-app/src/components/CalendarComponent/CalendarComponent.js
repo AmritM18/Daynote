@@ -365,7 +365,7 @@ export default class CalendarComponent extends Component {
                     <div className="d-flex align-items-center">
                         <div className="today-button" onClick={this.props.goToToday}>Today</div>
                         <img className="prev-month" src="assets/left-arrow.svg" onClick={this.props.prevMonth} />
-                        <img src="assets/right-arrow.svg" onClick={this.props.nextMonth} />
+                        <img className="next-month" src="assets/right-arrow.svg" onClick={this.props.nextMonth} />
                     </div>
                 </div>
                 
