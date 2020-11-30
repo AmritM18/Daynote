@@ -10,4 +10,14 @@ let DailyNote = new Schema({
     }
 });
 
+let DailyNoteGroup = new Schema({
+    monthYear: {
+        type: String
+    },
+    dailyNotes: {
+        type: [ DailyNote ]
+    }
+});
+
 module.exports = mongoose.model('DailyNote', DailyNote);
+module.exports = mongoose.model('DailyNoteGroup', DailyNoteGroup);

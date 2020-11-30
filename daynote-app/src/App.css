@@ -1,3 +1,7 @@
+html {
+    scroll-behavior: smooth;
+}
+
 .event-modal {
     position: fixed;
     left: 0;
@@ -103,6 +107,10 @@ a:hover {
     height: 75px;
 }
 
+p.show-note, ul.show-note, li.show-note {
+    height: auto;
+}
+
 .note-col {
     width: 50px;
 }
@@ -124,4 +132,15 @@ a:hover {
 .event:hover {
     color: #808080;
     cursor: pointer;
+}
+
+/* Used to make daily note cells clickable! */
+.table a {
+    display:block;
+    text-decoration:none;
+}
+
+.card-title {
+    padding-top: 20px;
+    margin-top: -20px;
 }

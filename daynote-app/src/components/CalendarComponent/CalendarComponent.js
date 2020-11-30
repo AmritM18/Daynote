@@ -124,16 +124,18 @@ export default class CalendarComponent extends Component {
                 console.log(error);
             })
 
-        axios.get('http://localhost:4000/DailyNotes/')
+        axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear)
             .then(response => {
-                this.setState(state => {
-                    const obj = response.data;
-                    const fetchedNotes = state.notes.concat(obj);
-               
-                    return {
-                        notes: fetchedNotes
-                    };
-                  });
+                if(response.data) {
+                    this.setState(state => {
+                        const obj = response.data;
+                        const fetchedNotes = state.notes.concat(obj.dailyNotes);
+                   
+                        return {
+                            notes: fetchedNotes
+                        };
+                      });
+                }
             })
             .catch(function (error) {
                 console.log(error);
@@ -226,8 +228,8 @@ export default class CalendarComponent extends Component {
     getNotes(date, monthNotes) {
         const key = date.getDate()-1;
         let notes = [];
-        for(let i = 0; i<monthNotes[key].length; i++) {
-            notes.push(<div key={i} dangerouslySetInnerHTML={{ __html: monthNotes[key][i].note_text }}></div>);
+        if(monthNotes[key] !== null && typeof monthNotes[key] === 'object') {
+            notes.push(<div key={key} dangerouslySetInnerHTML={{ __html: monthNotes[key].note_text }}></div>);
         }
         return <div key={key}>{notes}</div>;
     }
@@ -236,8 +238,7 @@ export default class CalendarComponent extends Component {
     getMonthNotes(totalDays) {
         let monthNotes = [];
         for(let i = 0; i<totalDays; i++) {
-            let events = [];
-            monthNotes.push(events);
+            monthNotes.push(null);
         }
 
         let currentDate = new Date(this.props.year,this.props.month,this.props.day);
@@ -247,7 +248,7 @@ export default class CalendarComponent extends Component {
             noteStartDate.setHours(0,0,0,0);
 
             if(noteStartDate.getFullYear() === currentDate.getFullYear() && noteStartDate.getMonth() === currentDate.getMonth()) {
-                monthNotes[noteStartDate.getDate()-1].push(currentNote);
+                monthNotes[noteStartDate.getDate()-1] = currentNote;
             }
         });
 
@@ -258,9 +259,9 @@ export default class CalendarComponent extends Component {
     renderDates = () => {
         let calendar = [];
 
-        let date = new Date(this.props.year,this.props.month+1,this.props.day);
-        let firstDay = new Date(date.getFullYear(), date.getMonth()-1, 1);
-        let lastDay = new Date(date.getFullYear(), date.getMonth(), 0);
+        let curDate = new Date(this.props.year,this.props.month+1,this.props.day);
+        let firstDay = new Date(curDate.getFullYear(), curDate.getMonth()-1, 1);
+        let lastDay = new Date(curDate.getFullYear(), curDate.getMonth(), 0);
 
         let numDays = lastDay.getDate();
         let startDay = firstDay.getDay();
@@ -287,12 +288,21 @@ export default class CalendarComponent extends Component {
                     if(numDays) {
                         let date = i * 7 + (j - startDay + 1);
                         children.push(<td key={date + 7} className="date-cell py-0">{`${date}`}<br/>{this.getEvents(new Date(this.props.year,this.props.month,date),monthEvents)}</td>);
-                        childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell py-0" onClick={() => this.addNote(monthNotes[date-1],new Date(this.props.year,this.props.month,date))}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</td>);
+                        
+                        // TODO: TEST THIS
+                        // If a note entry exists → scroll to the daily note
+                        if(monthNotes[date-1]) {
+                            childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell py-0"><a href={"#"+date}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</a></td>);
+                        }
+                        // Otherwise → add daily note
+                        else {
+                            childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell py-0"><Link to={"/addDailyNote/"+date}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</Link></td>);
+                        }
                         numDays--;
                     }
                     else {
-                        children.push(<td key={date + j} className="date-cell py-0"></td>);
-                        childrenNotes.push(<td key={date + j} className="note-cell py-0"></td>);
+                        children.push(<td key={curDate + j} className="date-cell py-0"></td>);
+                        childrenNotes.push(<td key={curDate + j} className="note-cell py-0"></td>);
                     }
                 }
             }
@@ -302,33 +312,6 @@ export default class CalendarComponent extends Component {
 
         return calendar;
     }
-
-    /*prevMonth() {
-        this.props.prevMonth();
-
-        this.setState({
-            month: this.props.month,
-            year: this.props.year
-        });
-    }
-
-    nextMonth() {
-        this.props.nextMonth();
-
-        this.setState({
-            month: this.props.month,
-            year: this.props.year
-        });
-    }
-
-    goToToday() {
-        this.props.goToToday();
-
-        this.setState({
-            month: this.props.month,
-            year: this.props.year
-        });
-    }*/
     
     // Month number to month string
     getMonthString(month) {

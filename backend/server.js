@@ -14,6 +14,7 @@ let DailyNote = require('./dailyNote.model');
 
 let EventGroup = require('./event.model');
 let NoteGroup = require('./note.model');
+let DailyNoteGroup = require('./dailyNote.model');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -285,7 +286,18 @@ routes3.route('/').get(function(req,res) {
     });
 });
 
-routes3.route('/addNote').post(function(req,res) {
+routes3.route('/exists/:month').get(function(req,res) {
+    let month = req.params.month;
+    DailyNoteGroup.exists({ monthYear: month }, function(err, result) {
+        if (err) {
+          res.send(err);
+        } else {
+          res.send(result);
+        }
+      });
+});
+
+/*routes3.route('/addNote').post(function(req,res) {
     let note = new DailyNote(req.body);
     note.save()
         .then(event => {
@@ -294,6 +306,55 @@ routes3.route('/addNote').post(function(req,res) {
         .catch(err => {
             res.status(400).send('adding new note failed');
         });
+});*/
+
+routes3.route('/addMonth/').post(function(req,res) {
+    let dailyNoteGroup = new DailyNoteGroup(req.body);
+    dailyNoteGroup.save()
+        .then(dailyNoteGroup => {
+            res.status(200).json({'dailyNoteGroup': 'dailyNoteGroup added successfuly'});
+        })
+        .catch(err => {
+            res.status(400).send('adding new dailyNoteGroup failed');
+        });
+});
+
+routes3.route('/updateMonth/:month').post(function(req,res) {
+    let month = req.params.month;
+    DailyNoteGroup.findOne({monthYear: month}, function(err,dailyNoteGroup){
+        if(!dailyNoteGroup) {
+            res.status(404).send('data is not found');
+        }
+        else {
+            dailyNoteGroup.monthYear = req.body.monthYear;
+            dailyNoteGroup.dailyNotes = req.body.dailyNotes;
+
+            dailyNoteGroup.save().then(dailyNoteGroup => {
+                res.json('Daily Note Group updated');
+            })
+            .catch(err => {
+                res.status(400).send("Update not possible");
+            });
+        }
+    })
+});
+
+routes3.route('/remove/:id').delete(function(req,res) {
+    DailyNoteGroup.findByIdAndRemove(req.params.id, (err, event) => {
+        if (err) return res.status(500).send(err);
+        const response = {
+            message: "Daily Note Group successfully deleted",
+            id: req.params.id
+        };
+        return res.status(200).send(response);
+    });
+});
+
+routes3.route('/getMonth/:month').get(function(req,res) {
+    let month = req.params.month;
+    DailyNoteGroup.findOne({monthYear: month}, function(err,obj){
+        res.json(obj);
+    })
 });
 
 routes3.route('/:id').get(function(req,res) {
