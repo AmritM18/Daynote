@@ -1,12 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 
 .calendar-component {
     width: 80%;
     background-color: #F3F3F3;
     height: 100vh;
     padding: 25px 45px;
+    overflow-y: scroll;
 }
 
 .notes-component {
@@ -120,20 +122,55 @@ a:hover {
     margin: 0;
 }
 
-.today-button, .prev-month, .next-month {
+.today-button, .month-arrow-bg {
     cursor: pointer;
 }
 
 .today-button {
     font-family: 'Hind Siliguri', sans-serif;
+    font-size: 17px;
     color: #F4A8AB;
     border: 0.9px solid #F4A8AB;
-    padding: 3.5px 14px; 
+    padding: 4px 16px; 
     border-radius: 4px;
+    font-weight: 300;
+    transition: 0.3s;
+}
+
+.today-button:hover {
+    /*color: gray;
+    border-color: gray;*/
+    background-color: #F4A8AB;
+    color: white;
+    transition: 0.3s;
+}
+
+.today-button:active {
+    background-color: rgb(250, 187, 190);
+}
+
+.month-arrow-bg {
+    height: 31px;
+    width: 31px;
+    border-radius: 50%;
+}
+
+.month-arrow-bg:hover {
+    background-color: #e7e7e7;
+    transition: 0.3s;
+}
+
+.month-arrow-bg:active {
+    background-color: #dddddd;
+    transition: 0.45s;
 }
 
 .prev-month {
-    margin: 0px 32px;
+    padding-right: 2px;
+}
+
+.next-month {
+    padding-left: 2px;
 }
 
 th {
@@ -185,11 +222,6 @@ p.show-note, ul.show-note, li.show-note {
     text-decoration:none;
 }
 
-.card-title {
-    padding-top: 20px;
-    margin-top: -20px;
-}
-
 /* NotesComponent styling */
 
 .sticky-note {
@@ -197,6 +229,10 @@ p.show-note, ul.show-note, li.show-note {
     padding: 15px 25px 15px 15px;
     min-height: 220px;
     word-wrap: break-word;
+}
+
+div.sticky-note:first-of-type {
+    margin-top: 2vh;
 }
 
 div.sticky-note:nth-of-type(4n+1) {
@@ -222,12 +258,14 @@ div.sticky-note:nth-of-type(4n+4) {
 
 .add-note-margin {
     margin-right: 2vw;
-    margin-top: 15px;
+    margin-top: 25px;
 }
 
 /* AddNoteComponent styling */
 
 .add-note-title {
+    padding-top: 25px;
+    padding-bottom: 10px;
     font-family: 'Raleway', sans-serif;
     font-size: 30px;
     color: #D5DBE1;
@@ -239,8 +277,42 @@ div.sticky-note:nth-of-type(4n+4) {
     color: #D5DBE1;
 }
 
+.add-note-form .form-group {
+    margin-bottom: 15px;
+}
+
 #form-title-input {
     background-color: #5F6670;
     border-color: #8F99A7;
     color: #D5DBE1;
+    box-shadow: none;
+}
+
+#form-title-input:hover, #form-title-input:focus {
+    border-color: #E9E9E9;
+}
+
+.tox-toolbar__primary, .tox-edit-area__iframe, .tox-statusbar {
+    background-color: #AAEFE7 !important;
+}
+
+.note-form-buttons {
+    color: #343434;
+    font-family: 'Hind Siliguri', sans-serif;
+    margin-top: 22px;
+}
+
+#note-update-btn {
+    background-color: #F4A8AB;
+    font-size: 14px;
+}
+
+#note-cancel-btn {
+    background-color: #D5DBE1;
+    font-size: 14px;
+}
+
+#note-delete-btn {
+    background-color: #A6ACB4;
+    font-size: 14px;
 }

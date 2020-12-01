@@ -254,24 +254,26 @@ export default class EditTodo extends Component {
                             apiKey="qapv6hfnxtm7zkn4x2h1alasz86je1rcynforifaa49w5l34"
                             value={this.state.note_text}
                             init={{
-                            height: 300,
+                            height: 240,
                             menubar: false,
                             plugins: [
                                 'advlist autolink lists link image', 
                                 'charmap print preview anchor help',
                                 'searchreplace visualblocks code',
-                                'insertdatetime media table paste wordcount'
+                                'insertdatetime media table paste'
                             ],
                             toolbar:
-                                'bold italic | bullist numlist'
+                                'bold italic underline strikethrough bullist'
                             }}
                             onEditorChange={this.onChangeNoteText}
                         />
                     </div>
-                    <div className="form-group">
-                        <input type="submit" value="Update" className="btn btn-primary mr-2" />
-                        <Link to="/" className="btn btn-primary mr-2">Cancel</Link>
-                        <div className="btn btn-primary" onClick={this.deleteNote}>Delete</div>
+                    <div className="form-group note-form-buttons d-flex justify-content-between">
+                        <div>
+                            <input type="submit" value="Update" id="note-update-btn" className="btn mr-2" />
+                            <Link to="/" id="note-cancel-btn" className="btn mr-2">Cancel</Link>
+                        </div>
+                        <div id="note-delete-btn" className="btn" onClick={this.deleteNote}>Delete</div>
                     </div>
                 </form> 
             </div>

@@ -363,9 +363,13 @@ export default class CalendarComponent extends Component {
                         <AddEventModalComponent updateEvents={this.fetchData} />
                     </div>
                     <div className="d-flex align-items-center">
-                        <div className="today-button" onClick={this.props.goToToday}>Today</div>
-                        <img className="prev-month" src="assets/left-arrow.svg" onClick={this.props.prevMonth} />
-                        <img className="next-month" src="assets/right-arrow.svg" onClick={this.props.nextMonth} />
+                        <div className="today-button mr-2" onClick={this.props.goToToday}>Today</div>
+                        <div class="month-arrow-bg d-flex justify-content-center align-items-center mx-2" onClick={this.props.prevMonth}>
+                            <img className="prev-month" src="assets/left-arrow.svg" />
+                        </div>
+                        <div class="month-arrow-bg d-flex justify-content-center align-items-center" onClick={this.props.nextMonth}>
+                            <img className="next-month" src="assets/right-arrow.svg" />
+                        </div>
                     </div>
                 </div>
                 
