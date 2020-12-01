@@ -235,12 +235,13 @@ export default class EditTodo extends Component {
     render() {
         return(
             <div>
-                <p className="month">Add Note</p>
-                <form onSubmit={this.onSubmit}>
+                <div className="add-note-title text-center">Add Note</div>
+                <form className="add-note-form" onSubmit={this.onSubmit}>
                     <div className="form-group">
                         <label>Title</label>
                         <input 
                             type="text" 
+                            id="form-title-input"
                             className="form-control"
                             value={this.state.isDailyNote ? new Date(this.state.note_date).toDateString() : this.state.note_title}
                             onChange={this.onChangeNoteTitle}
@@ -262,9 +263,7 @@ export default class EditTodo extends Component {
                                 'insertdatetime media table paste wordcount'
                             ],
                             toolbar:
-                                'undo redo | formatselect | bold italic | \
-                                alignleft aligncenter alignright | \
-                                bullist numlist outdent indent | help'
+                                'bold italic | bullist numlist'
                             }}
                             onEditorChange={this.onChangeNoteText}
                         />

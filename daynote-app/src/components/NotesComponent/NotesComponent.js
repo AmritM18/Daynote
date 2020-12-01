@@ -7,8 +7,8 @@ const Note = props => (
         <div className="">
         {
             (props.note.note_title)
-            ? <div className="d-flex justify-content-between"><p>{props.note.note_title}</p> <Link to={"/addNote/"+props.note._id}><img src="assets/sticky-edit-button.svg"></img></Link></div> 
-            : <div className="d-flex justify-content-between"><p id={new Date(props.note.note_date).getDate()}>{new Date(props.note.note_date).toDateString()}</p> <Link to={"/addDailyNote/"+props.note._id+"/"+new Date(props.note.note_date).getDate()} className="btn btn-primary">Edit</Link></div>
+            ? <div className="d-flex justify-content-between"><p>{props.note.note_title}</p> <Link to={"/addNote/"+props.note._id}><img src="assets/sticky-edit-button.svg"/></Link></div> 
+            : <div className="d-flex justify-content-between"><p id={new Date(props.note.note_date).getDate()}>{new Date(props.note.note_date).toDateString()}</p> <Link to={"/addDailyNote/"+props.note._id+"/"+new Date(props.note.note_date).getDate()}><img src="assets/sticky-edit-button.svg"/></Link></div>
         }
         </div>
         <p className="" dangerouslySetInnerHTML={{ __html: props.note.note_text }}></p>
@@ -71,10 +71,10 @@ export default class NotesComponent extends Component {
         return(
             <div>
                 <div>
-                    <div className="d-flex align-items-center justify-content-end add-note-p">
+                    <Link to={"/addNote"} className="d-flex align-items-center justify-content-end add-note-margin">
                         <div className="add-note-text mr-2">Add Note</div>
-                        <Link to={"/addNote"} className="add-note-plus"><img src="assets/add-note-plus.svg"/></Link>
-                    </div>
+                        <img src="assets/add-note-plus.svg"/>
+                    </Link>
                     <div className="sticky-note-parent">
                         { this.getNotes() }
                     </div>

@@ -95,23 +95,5 @@ export default class ParentComponent extends Component {
             </div>
         );
     }
-
-    /*
-    render() {
-        return (
-            <div className="container-fluid">
-              <div className="row mt-2">
-                  <div className="col-9">
-                    <CalendarComponent/>
-                  </div>
-                  <div className="col-3 border-left">
-                  component={NotesComponent}
-                    <NotesComponent/>
-                    <AddNoteComponent/>
-                  </div>
-              </div>
-            </div>
-        );
-    }*/
 }
 

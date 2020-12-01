@@ -2,18 +2,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap');
 
-html, body {
-    scroll-behavior: smooth;
-    overflow: hidden;
-}
-
-
 .calendar-component {
     width: 80%;
     background-color: #F3F3F3;
     height: 100vh;
     padding: 25px 45px;
-    overflow: hidden;
 }
 
 .notes-component {
@@ -21,6 +14,7 @@ html, body {
     background-color: #5F6670;
     height: 100vh;
     overflow-y: scroll;
+    scroll-behavior: smooth;
 }
 
 .event-modal {
@@ -201,7 +195,8 @@ p.show-note, ul.show-note, li.show-note {
 .sticky-note {
     margin: 3vh 2vw;
     padding: 15px 25px 15px 15px;
-    height: 220px;
+    min-height: 220px;
+    word-wrap: break-word;
 }
 
 div.sticky-note:nth-of-type(4n+1) {
@@ -225,6 +220,27 @@ div.sticky-note:nth-of-type(4n+4) {
     font-family: 'Raleway', sans-serif;
 }
 
-.add-note-p {
-    margin: 15px;
+.add-note-margin {
+    margin-right: 2vw;
+    margin-top: 15px;
+}
+
+/* AddNoteComponent styling */
+
+.add-note-title {
+    font-family: 'Raleway', sans-serif;
+    font-size: 30px;
+    color: #D5DBE1;
+}
+
+.add-note-form {
+    margin: 0 1.75vw;
+    font-family: 'Hind Siliguri', sans-serif;
+    color: #D5DBE1;
+}
+
+#form-title-input {
+    background-color: #5F6670;
+    border-color: #8F99A7;
+    color: #D5DBE1;
 }
