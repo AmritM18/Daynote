@@ -256,13 +256,13 @@ export default class EditTodo extends Component {
                             height: 240,
                             menubar: false,
                             plugins: [
-                                'advlist autolink lists link image', 
+                                'autolink lists link image', 
                                 'charmap print preview anchor help',
                                 'searchreplace visualblocks code',
                                 'insertdatetime media table paste'
                             ],
                             toolbar:
-                                'bold italic underline strikethrough bullist'
+                                'bold italic underline strikethrough | bullist numlist'
                             }}
                             onEditorChange={this.onChangeNoteText}
                         />

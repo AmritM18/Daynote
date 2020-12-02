@@ -273,34 +273,33 @@ export default class CalendarComponent extends Component {
             let children = [];
             let childrenNotes = [];
 
-            children.push(<td key={-1} className="date-cell p-0 text-center align-middle"><img src="assets/down-arrow.svg" alt="" className="toggle-notes" onClick={() => this.toggleDailyNotes(i)} /></td>);
-            childrenNotes.push(<td key={-1} className="note-cell p-0 bg-transparent"></td>);
+            children.push(<td key={-1} className="date-cell p-0 text-center"><img src="assets/down-arrow.svg" alt="" height="9" className="toggle-notes" onClick={() => this.toggleDailyNotes(i)} /></td>);
+            childrenNotes.push(<td key={-1} className="p-0 bg-transparent"></td>);
 
             for (let j = 0; j < 7; j++) {
                 if(daysLeft) {
                     children.push(<td key={j} className="date-cell"></td>);
-                    childrenNotes.push(<td key={j} className="note-cell py-0"></td>);
+                    childrenNotes.push(<td key={j} className="note-cell p-0"></td>);
                     daysLeft--;
                 }
                 else {
                     if(numDays) {
                         let date = i * 7 + (j - startDay + 1);
-                        children.push(<td key={date + 7} className="date-cell">{`${date}`}<br/>{this.getEvents(new Date(this.props.year,this.props.month,date),monthEvents)}</td>);
+                        children.push(<td key={date + 7} className="date-cell active-date-cell">{`${date}`}<br/>{this.getEvents(new Date(this.props.year,this.props.month,date),monthEvents)}</td>);
                         
-                        // TODO: TEST THIS
                         // If a note entry exists → scroll to the daily note
                         if(monthNotes[date-1]) {
-                            childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell py-0"><a href={"#"+date}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</a></td>);
+                            childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell p-0"><a href={"#"+date}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</a></td>);
                         }
                         // Otherwise → add daily note
                         else {
-                            childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell py-0"><Link to={"/addDailyNote/"+date}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</Link></td>);
+                            childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell p-0"><Link to={"/addDailyNote/"+date}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</Link></td>);
                         }
                         numDays--;
                     }
                     else {
                         children.push(<td key={curDate + j} className="date-cell"></td>);
-                        childrenNotes.push(<td key={curDate + j} className="note-cell py-0"></td>);
+                        childrenNotes.push(<td key={curDate + j} className="note-cell p-0"></td>);
                     }
                 }
             }
