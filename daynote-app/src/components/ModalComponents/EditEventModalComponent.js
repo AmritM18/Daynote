@@ -329,6 +329,7 @@ export default class EditTodo extends Component {
                                     <option>3</option>
                                     <option>4</option>
                                     <option>5</option>
+                                    <option>6</option>
                                 </select>
                             </div>
                             <div className="form-group">

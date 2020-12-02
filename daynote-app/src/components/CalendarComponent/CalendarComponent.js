@@ -173,20 +173,21 @@ export default class CalendarComponent extends Component {
         const key = date.getDate()-1;
         let events = [];
         for(let i = 0; i<monthEvents[key].length; i+=2) {
-            let message = "";
+            let startMessage = "";
+            let endMessage = "";
             if(monthEvents[key][i+1] === "S") {
                 let startDate = new Date(monthEvents[key][i].event_start);
                 let time = this.getTime(startDate);
-                message =  " at " + time;
+                startMessage =  "" + time + " ";
             }
             else if(monthEvents[key][i+1] === "E") {
-                message = " Ends";
+                endMessage = " Ends";
             }
             let monthYear = "" + (this.props.month+1) + this.props.year; 
             //events.push(<Link to={"/edit/"+monthYear+monthEvents[key][i]._id} key={i} className={"colour-"+monthEvents[key][i].event_colour}>{monthEvents[key][i].event_title}{message}</Link>);
-            events.push(<div key={i} className={"colour-"+monthEvents[key][i].event_colour + " event"} onClick={() => this.editEvent(monthEvents[key][i], new Date(this.props.year, this.props.month, key+1))}>{monthEvents[key][i].event_title}{message}</div>)
+            events.push(<div key={i} className={"colour-"+monthEvents[key][i].event_colour + " event"} onClick={() => this.editEvent(monthEvents[key][i], new Date(this.props.year, this.props.month, key+1))}>{startMessage}{monthEvents[key][i].event_title}{endMessage}</div>)
         }
-        return <div key={key}>{events}</div>;
+        return <div key={key} class="events">{events}</div>;
     }
 
     // Places events into an array where length of array = # of days in month
@@ -277,14 +278,14 @@ export default class CalendarComponent extends Component {
 
             for (let j = 0; j < 7; j++) {
                 if(daysLeft) {
-                    children.push(<td key={j} className="date-cell py-0"></td>);
+                    children.push(<td key={j} className="date-cell"></td>);
                     childrenNotes.push(<td key={j} className="note-cell py-0"></td>);
                     daysLeft--;
                 }
                 else {
                     if(numDays) {
                         let date = i * 7 + (j - startDay + 1);
-                        children.push(<td key={date + 7} className="date-cell py-0">{`${date}`}<br/>{this.getEvents(new Date(this.props.year,this.props.month,date),monthEvents)}</td>);
+                        children.push(<td key={date + 7} className="date-cell">{`${date}`}<br/>{this.getEvents(new Date(this.props.year,this.props.month,date),monthEvents)}</td>);
                         
                         // TODO: TEST THIS
                         // If a note entry exists → scroll to the daily note
@@ -298,7 +299,7 @@ export default class CalendarComponent extends Component {
                         numDays--;
                     }
                     else {
-                        children.push(<td key={curDate + j} className="date-cell py-0"></td>);
+                        children.push(<td key={curDate + j} className="date-cell"></td>);
                         childrenNotes.push(<td key={curDate + j} className="note-cell py-0"></td>);
                     }
                 }
@@ -355,9 +356,9 @@ export default class CalendarComponent extends Component {
     render() {
         return(
             <div>
-                <div className="d-flex justify-content-between">
+                <div className="d-flex justify-content-between align-items-center" id="calendar-header">
                     <div>
-                        <p className="text-center month">{`${this.getMonthString(this.props.month)} ${this.props.year}`}</p>
+                        <div className="text-center month">{`${this.getMonthString(this.props.month)} ${this.props.year}`}</div>
                     </div>
                     <div className="d-flex align-items-center">
                         <AddEventModalComponent updateEvents={this.fetchData} />
@@ -376,10 +377,10 @@ export default class CalendarComponent extends Component {
                 <AddNoteModalComponent noteId={this.state.noteId} noteDate={this.state.noteDate} showModal={this.state.showNoteModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
                 <EditEventModalComponent eventId={this.state.eventId} eventDate={this.state.eventDate} showModal={this.state.showEventModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
 
-                <table className="table table-borderless calendar">
+                <table id="calendar" className="table table-borderless">
                     <thead>
-                        <tr>
-                            <th scope="col" className="note-col"></th>
+                        <tr className="days-week">
+                            <th scope="col" className="note-arrow-col"></th>
                             <th scope="col">Sunday</th>
                             <th scope="col">Monday</th>
                             <th scope="col">Tuesday</th>

@@ -1,14 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Varela&display=swap');
 
 .calendar-component {
     width: 80%;
     background-color: #F3F3F3;
     height: 100vh;
-    padding: 25px 45px;
+    padding: 0 45px;
     overflow-y: scroll;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+
+.calendar-component::-webkit-scrollbar { /* WebKit */
+    width: 0;
+    height: 0;
 }
 
 .notes-component {
@@ -17,71 +25,62 @@
     height: 100vh;
     overflow-y: scroll;
     scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
 }
 
-.event-modal {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    visibility: hidden;
-    /*transform: scale(1.1);*/
-    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+.notes-component::-webkit-scrollbar { /* WebKit */
+    width: 0;
+    height: 0;
 }
 
-.event-modal-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 1rem 1.5rem;
-    width: 600px;
-    border-radius: 0.5rem;
+.event {
+    padding: 2.5px 8px 0 8px;
+    margin: 3px 0;
+    font-family: 'Hind Siliguri', sans-serif;
+    /*font-family: 'Segoe UI', sans-serif;*/
+    font-size: 13px;
+    color: #48494B;
+    border-radius: 2.5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
-.close-button {
-    float: right;
-    width: 1.5rem;
-    line-height: 1.5rem;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 0.25rem;
-    background-color: rgb(233, 233, 233);
+.events {
+    height: calc((100vh - 200px) / 5 - 20px);
+    overflow-y: scroll;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
 }
 
-.close-button:hover {
-    background-color: darkgray;
-}
-
-.show-events-modal {
-    opacity: 1;
-    visibility: visible;
-    transform: scale(1.0);
-    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+.events::-webkit-scrollbar { /* WebKit */
+    width: 0;
+    height: 0;
 }
 
 .colour-1 {
-    background-color: #ffcebf;
+    background-color: #FFD7D9;
 }
 
 .colour-2 {
-    background-color: #dbbfff;
+    background-color: #AAEFE7;
 }
 
 .colour-3 {
-    background-color: #ffbfe5;
+    background-color: #D2FFC3;
 }
 
 .colour-4 {
-    background-color: #bfffff;
+    background-color: #EBC7F4;
 }
 
 .colour-5 {
-    background-color: #c5ffbf;
+    background-color: #FFD9B8;
+}
+
+.colour-6 {
+    background-color: #FDF3B8;
 }
 
 a {
@@ -98,8 +97,8 @@ a:hover {
 }
 
 .date-cell {
-    height: 4.5em;
     text-align: center;
+    height: calc((100vh - 200px) / 5);
 }
 
 .active-note-cell:hover {
@@ -108,16 +107,25 @@ a:hover {
 
 .table {
     table-layout: fixed;
+    margin: 0;
 }
 
-.calendar {
-    margin-top: 30px;
+.table td {
+    padding: 5px 7px;
+}
+
+.days-week {
+    height: 35px;
+}
+
+#calendar-header {
+    margin-top: 10px;
+    height: 70px;
 }
 
 .month {
-    font-size: 36px;
+    font-size: 34px;
     color: #899096;
-    text-transform: uppercase;
     font-family: 'Quicksand', sans-serif;
     margin: 0;
 }
@@ -131,7 +139,7 @@ a:hover {
     font-size: 17px;
     color: #F4A8AB;
     border: 0.9px solid #F4A8AB;
-    padding: 4px 16px; 
+    padding: 3.5px 16px; 
     border-radius: 4px;
     font-weight: 300;
     transition: 0.3s;
@@ -176,7 +184,16 @@ a:hover {
 th {
     font-family: 'Raleway', sans-serif;
     font-weight: 400;
+    color: #525456;
+    font-size: 15.5px;
     text-align: center;
+    height: 30px;
+}
+
+td {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    color: #6C6D70;
 }
 
 .panel, .panel * {
@@ -193,7 +210,7 @@ p.show-note, ul.show-note, li.show-note {
     height: auto;
 }
 
-.note-col {
+.note-arrow-col {
     width: 50px;
 }
 
@@ -220,6 +237,53 @@ p.show-note, ul.show-note, li.show-note {
 .table a {
     display:block;
     text-decoration:none;
+}
+
+/* Modal Styling */
+
+.event-modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    /*transform: scale(1.1);*/
+    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+}
+
+.event-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 1rem 1.5rem;
+    width: 600px;
+    border-radius: 0.5rem;
+}
+
+.close-button {
+    float: right;
+    width: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    background-color: rgb(233, 233, 233);
+}
+
+.close-button:hover {
+    background-color: darkgray;
+}
+
+.show-events-modal {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1.0);
+    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
 }
 
 /* NotesComponent styling */
@@ -293,7 +357,11 @@ div.sticky-note:nth-of-type(4n+4) {
 }
 
 .tox-toolbar__primary, .tox-edit-area__iframe, .tox-statusbar {
-    background-color: #AAEFE7 !important;
+    /*background-color: #AAEFE7 !important;*/
+}
+
+.tox-tinymce {
+    /opacity: 0.8;
 }
 
 .note-form-buttons {

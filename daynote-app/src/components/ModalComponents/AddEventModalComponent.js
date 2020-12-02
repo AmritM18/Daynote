@@ -152,7 +152,7 @@ export default class AddEventModalComponent extends Component {
     render() {
         return(
             <div>
-                <div className="btn btn-primary float-right" onClick={this.toggleShowClass}>Add Event</div>
+                <div className="btn" onClick={this.toggleShowClass}>Add Event</div>
                 <div className={'event-modal ' + this.state.showClass}>
                     <div className="event-modal-content">
                         <span className="close-button" onClick={this.toggleShowClass}>&times;</span>
@@ -187,6 +187,7 @@ export default class AddEventModalComponent extends Component {
                                     <option>3</option>
                                     <option>4</option>
                                     <option>5</option>
+                                    <option>6</option>
                                 </select>
                             </div>
                             <div className="form-group">
