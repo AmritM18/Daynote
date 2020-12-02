@@ -19,7 +19,8 @@ export default class EditTodo extends Component {
             note_title: "",
             note_text: "",
             note_date: new Date(),
-            isDailyNote: null
+            isDailyNote: null,
+            note_add_edit_title: "",
         }
     }
 
@@ -104,8 +105,7 @@ export default class EditTodo extends Component {
             }
             // otherwise the month exists
             else {
-                // need to edit the note
-                // edit
+                // edit note in existing month
                 if (this.props.routeParams.match.params.id) {
                     const getNoteGroupData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear);
                     let notes = getNoteGroupData.data.notes;
@@ -231,11 +231,10 @@ export default class EditTodo extends Component {
         this.props.routeParams.history.push('/');
     }
 
-
     render() {
         return(
             <div>
-                <div className="add-note-title text-center">Add Note</div>
+                {(this.props.routeParams.match.path == "/addNote" || this.props.routeParams.match.path == "/addDailyNote/:date") ? <div className="add-note-title text-center">Add Note</div> : <div className="add-note-title text-center">Edit Note</div>}
                 <form className="add-note-form" onSubmit={this.onSubmit}>
                     <div className="form-group">
                         <label>Title</label>
@@ -273,7 +272,7 @@ export default class EditTodo extends Component {
                             <input type="submit" value="Update" id="note-update-btn" className="btn mr-2" />
                             <Link to="/" id="note-cancel-btn" className="btn mr-2">Cancel</Link>
                         </div>
-                        <div id="note-delete-btn" className="btn" onClick={this.deleteNote}>Delete</div>
+                        {(this.props.routeParams.match.path == "/addNote/:id" || this.props.routeParams.match.path == "/addDailyNote/:id/:date") ? <div id="note-delete-btn" className="btn" onClick={this.deleteNote}>Delete</div> : null}
                     </div>
                 </form> 
             </div>
