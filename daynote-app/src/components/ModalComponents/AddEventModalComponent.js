@@ -9,7 +9,6 @@ export default class AddEventModalComponent extends Component {
     constructor(props) {
         super(props);
 
-        this.toggleShowClass = this.toggleShowClass.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.onChangeEventTitle = this.onChangeEventTitle.bind(this);
         this.onChangeEventStart = this.onChangeEventStart.bind(this);
@@ -27,20 +26,28 @@ export default class AddEventModalComponent extends Component {
         }
     }
 
-    toggleShowClass() {
-        if(this.state.showClass === "") {
-            this.setState({
-                showClass: "show-events-modal"
-            });
-        }
-        else {
-            this.setState({
-                showClass: "",
-                event_title: "",
-                event_start: new Date(),
-                event_end: new Date(),
-                event_colour: "1"
-            });
+    componentDidUpdate(prevProps, prevState) {
+        if(prevProps.showModal !== this.props.showModal) {
+            // Hide modal
+            if(this.props.showModal === "") {
+                this.setState({
+                    showClass: "",
+                    event_title: "",
+                    event_colour: "1"
+                });
+            }
+            // Show modal
+            else {
+                let eventDate = new Date(this.props.eventDate);
+
+                this.setState({
+                    showClass: "show-events-modal",
+                    event_title: "",
+                    event_start: eventDate,
+                    event_end: eventDate,
+                    event_colour: "1"
+                });
+            }
         }
     }
 
@@ -152,10 +159,9 @@ export default class AddEventModalComponent extends Component {
     render() {
         return(
             <div>
-                <div className="btn" onClick={this.toggleShowClass}>Add Event</div>
                 <div className={'event-modal ' + this.state.showClass}>
                     <div className="event-modal-content">
-                        <span className="close-button" onClick={this.toggleShowClass}>&times;</span>
+                        <span className="close-button" onClick={this.props.closeModal}>&times;</span>
                         <h4>Add An Event</h4>
                         <form onSubmit={this.onSubmit}>
                             <div className="form-group">

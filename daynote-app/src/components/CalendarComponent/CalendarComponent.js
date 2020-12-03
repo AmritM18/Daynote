@@ -31,6 +31,8 @@ export default class CalendarComponent extends Component {
             showNoteModal: "",
             noteId: null,
             noteDate: "",
+            showAddEventModal: "",
+            eventAddDate: "",
             showEventModal: "",
             eventId: null,
             eventDate: ""
@@ -187,7 +189,7 @@ export default class CalendarComponent extends Component {
             //events.push(<Link to={"/edit/"+monthYear+monthEvents[key][i]._id} key={i} className={"colour-"+monthEvents[key][i].event_colour}>{monthEvents[key][i].event_title}{message}</Link>);
             events.push(<div key={i} className={"colour-"+monthEvents[key][i].event_colour + " event"} onClick={() => this.editEvent(monthEvents[key][i], new Date(this.props.year, this.props.month, key+1))}>{startMessage}{monthEvents[key][i].event_title}{endMessage}</div>)
         }
-        return <div key={key} class="events">{events}</div>;
+        return <div key={key} className="events">{events}</div>;
     }
 
     // Places events into an array where length of array = # of days in month
@@ -285,7 +287,7 @@ export default class CalendarComponent extends Component {
                 else {
                     if(numDays) {
                         let date = i * 7 + (j - startDay + 1);
-                        children.push(<td key={date + 7} className="date-cell active-date-cell">{`${date}`}<br/>{this.getEvents(new Date(this.props.year,this.props.month,date),monthEvents)}</td>);
+                        children.push(<td key={date + 7} className="date-cell active-date-cell" onClick={() => this.addEvent(new Date(this.props.year, this.props.month, date))}>{`${date}`}<br/>{this.getEvents(new Date(this.props.year,this.props.month,date),monthEvents)}</td>);
                         
                         // If a note entry exists → scroll to the daily note
                         if(monthNotes[date-1]) {
@@ -336,6 +338,13 @@ export default class CalendarComponent extends Component {
         }
     }
 
+    addEvent(date) {
+        this.setState({
+            showAddEventModal: "show-events-modal",
+            eventAddDate: date,
+        })
+    }
+
     editEvent(event,date) {
         this.setState({
             showEventModal: "show-events-modal",
@@ -348,7 +357,8 @@ export default class CalendarComponent extends Component {
     closeModal() {
         this.setState({
             showNoteModal: "",
-            showEventModal: ""
+            showEventModal: "",
+            showAddEventModal: ""
         })
     }
 
@@ -360,14 +370,11 @@ export default class CalendarComponent extends Component {
                         <div className="text-center month">{`${this.getMonthString(this.props.month)} ${this.props.year}`}</div>
                     </div>
                     <div className="d-flex align-items-center">
-                        <AddEventModalComponent updateEvents={this.fetchData} />
-                    </div>
-                    <div className="d-flex align-items-center">
                         <div className="today-button mr-2" onClick={this.props.goToToday}>Today</div>
-                        <div class="month-arrow-bg d-flex justify-content-center align-items-center mx-2" onClick={this.props.prevMonth}>
+                        <div className="month-arrow-bg d-flex justify-content-center align-items-center mx-2" onClick={this.props.prevMonth}>
                             <img className="prev-month" src="assets/left-arrow.svg" />
                         </div>
-                        <div class="month-arrow-bg d-flex justify-content-center align-items-center" onClick={this.props.nextMonth}>
+                        <div className="month-arrow-bg d-flex justify-content-center align-items-center" onClick={this.props.nextMonth}>
                             <img className="next-month" src="assets/right-arrow.svg" />
                         </div>
                     </div>
@@ -375,6 +382,7 @@ export default class CalendarComponent extends Component {
                 
                 <AddNoteModalComponent noteId={this.state.noteId} noteDate={this.state.noteDate} showModal={this.state.showNoteModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
                 <EditEventModalComponent eventId={this.state.eventId} eventDate={this.state.eventDate} showModal={this.state.showEventModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
+                <AddEventModalComponent eventDate={this.state.eventAddDate} showModal={this.state.showAddEventModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
 
                 <table id="calendar" className="table table-borderless">
                     <thead>
