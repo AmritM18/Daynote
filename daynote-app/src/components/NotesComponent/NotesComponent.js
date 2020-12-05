@@ -72,8 +72,8 @@ export default class NotesComponent extends Component {
             <div>
                 <div>
                     <Link to={"/addNote"} className="d-flex align-items-center justify-content-end add-note-margin">
-                        <div className="add-note-text mr-2">Add Note</div>
-                        <img src="assets/add-note-plus.svg"/>
+                        <div className="add-note-text">Add Note</div>
+                        <img src="assets/add-note-plus.svg" height="19.5" />
                     </Link>
                     <div className="sticky-note-parent">
                         { this.getNotes() }

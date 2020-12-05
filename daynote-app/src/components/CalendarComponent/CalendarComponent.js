@@ -187,7 +187,7 @@ export default class CalendarComponent extends Component {
             }
             let monthYear = "" + (this.props.month+1) + this.props.year; 
             //events.push(<Link to={"/edit/"+monthYear+monthEvents[key][i]._id} key={i} className={"colour-"+monthEvents[key][i].event_colour}>{monthEvents[key][i].event_title}{message}</Link>);
-            events.push(<div key={i} className={"colour-"+monthEvents[key][i].event_colour + " event"} onClick={() => this.editEvent(monthEvents[key][i], new Date(this.props.year, this.props.month, key+1))}>{startMessage}{monthEvents[key][i].event_title}{endMessage}</div>)
+            events.push(<div key={i} className={"colour-"+monthEvents[key][i].event_colour + " event"} onClick={(e) => this.editEvent(e,monthEvents[key][i], new Date(this.props.year, this.props.month, key+1))}>{startMessage}{monthEvents[key][i].event_title}{endMessage}</div>)
         }
         return <div key={key} className="events">{events}</div>;
     }
@@ -345,7 +345,8 @@ export default class CalendarComponent extends Component {
         })
     }
 
-    editEvent(event,date) {
+    editEvent(e,event,date) {
+        e.stopPropagation();
         this.setState({
             showEventModal: "show-events-modal",
             eventDate: date,

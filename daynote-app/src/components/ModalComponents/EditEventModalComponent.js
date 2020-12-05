@@ -82,9 +82,9 @@ export default class EditTodo extends Component {
         });
     }
 
-    onChangeEventColour(e) {
+    onChangeEventColour(colour) {
         this.setState({
-            event_colour: e.target.value
+            event_colour: colour
         });
     }
 
@@ -296,8 +296,8 @@ export default class EditTodo extends Component {
                     <div className="event-modal-content">
                         <span className="close-button" onClick={this.props.closeModal}>&times;</span>
                         <div className="d-flex justify-content-between">
-                            <h4>Edit Event</h4>
-                            <button className="btn btn-primary" onClick={this.deleteEvent}>Delete</button>
+                        <div className="modal-title">Edit Event</div>
+                            <button className="btn" onClick={this.deleteEvent}>Delete</button>
                         </div>
                         <form onSubmit={this.onSubmit}>
                             <div className="form-group">
@@ -319,21 +319,17 @@ export default class EditTodo extends Component {
                             </div>
                             <div className="form-group">
                                 <label>Event Colour: </label>
-                                <select 
-                                    className="form-control"
-                                    value={this.state.event_colour}
-                                    onChange={this.onChangeEventColour}
-                                >
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                    <option>6</option>
-                                </select>
+                                <div className="d-flex">
+                                    <div className={`colour-option colour-1 ${this.state.event_colour === "1" ? "selected-colour" : ""}`} onClick={() => this.onChangeEventColour("1")}></div>
+                                    <div className={`colour-option colour-2 ${this.state.event_colour === "2" ? "selected-colour" : ""}`} onClick={() => this.onChangeEventColour("2")}></div>
+                                    <div className={`colour-option colour-3 ${this.state.event_colour === "3" ? "selected-colour" : ""}`} onClick={() => this.onChangeEventColour("3")}></div>
+                                    <div className={`colour-option colour-4 ${this.state.event_colour === "4" ? "selected-colour" : ""}`} onClick={() => this.onChangeEventColour("4")}></div>
+                                    <div className={`colour-option colour-5 ${this.state.event_colour === "5" ? "selected-colour" : ""}`} onClick={() => this.onChangeEventColour("5")}></div>
+                                    <div className={`colour-option colour-6 ${this.state.event_colour === "6" ? "selected-colour" : ""}`} onClick={() => this.onChangeEventColour("6")}></div>
+                                </div>
                             </div>
                             <div className="form-group">
-                                <input type="submit" value="Edit Event" className="btn btn-primary" />
+                                <input type="submit" value="Edit Event" className="btn" />
                             </div>
                         </form>
                     </div>

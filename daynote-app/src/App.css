@@ -83,6 +83,21 @@
     background-color: #FDF3B8;
 }
 
+.colour-option {
+    height: 38px;
+    width: 38px;
+    border-radius: 50%;
+    margin-right: 7px;
+}
+
+.colour-option:hover:not(.selected-colour) {
+    border: 2.75px solid #babfc4;
+}
+
+.selected-colour, .colour-option:active {
+    border: 2.75px solid #A4ABB2;
+}
+
 a {
     color: inherit;
 }
@@ -270,7 +285,7 @@ p.show-note, ul.show-note, li.show-note {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.45);
     opacity: 0;
     visibility: hidden;
     /*transform: scale(1.1);*/
@@ -282,10 +297,12 @@ p.show-note, ul.show-note, li.show-note {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
+    background-color: #F3F3F3;
     padding: 1rem 1.5rem;
     width: 600px;
     border-radius: 0.5rem;
+    font-family: 'Hind Siliguri', sans-serif;
+    color: #646E78;
 }
 
 .close-button {
@@ -307,6 +324,26 @@ p.show-note, ul.show-note, li.show-note {
     visibility: visible;
     transform: scale(1.0);
     transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+}
+
+.event-modal-content input:not(.btn) {
+    background-color: #F3F3F3;
+    border-color: #C1C6CA;
+}
+
+.event-modal-content input:hover:not(.btn) {
+    border-color: #6C6D70;
+}
+
+.event-modal-content input:focus {
+    background-color: #F3F3F3;
+    box-shadow: none;
+    border-color: #6C6D70;
+}
+
+.modal-title {
+    font-family: 'Raleway', sans-serif;
+    font-size: 28px;
 }
 
 /* NotesComponent styling */
@@ -352,6 +389,7 @@ div.sticky-note:nth-of-type(4n+4) {
 .add-note-text {
     color: #D5DBE1;
     font-family: 'Raleway', sans-serif;
+    margin-right: 6.5px;
 }
 
 .add-note-margin {
