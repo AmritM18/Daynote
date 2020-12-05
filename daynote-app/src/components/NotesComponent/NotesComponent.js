@@ -19,26 +19,34 @@ export default class NotesComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            notes: []
+            notes: [],
+            dailyNotes: [],
         };
+    }
+    
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if(prevState.dailyNotes !== nextProps.dailyNotes) {
+            return {
+                dailyNotes: nextProps.dailyNotes
+            };
+        }
+        return null;
     }
 
     async componentDidMount() {
         let monthYear =  "" + (this.props.month+1) + this.props.year;
         const monthExists = await axios.get('http://localhost:4000/notes/noteExists/'+monthYear);
-        let notes = [];
         if (monthExists.data) {
             const noteData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear);
-            notes = noteData.data.notes;
+            this.setState({
+                notes: noteData.data.notes,
+            })
         }
-        const dailyNotesExist = await axios.get('http://localhost:4000/DailyNotes/exists/'+monthYear);
+        /*const dailyNotesExist = await axios.get('http://localhost:4000/DailyNotes/exists/'+monthYear);
         if(dailyNotesExist.data) {
             const dailyNotesRes = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
             notes = notes.concat(dailyNotesRes.data.dailyNotes);
-        }
-        this.setState({
-            notes: notes
-        })
+        }*/
     }
 
     async componentDidUpdate(prevProps, prevState) {
@@ -50,19 +58,25 @@ export default class NotesComponent extends Component {
                 const noteData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear);
                 notes = noteData.data.notes;
             }
-            const dailyNotesExist = await axios.get('http://localhost:4000/DailyNotes/exists/'+monthYear);
+            /*const dailyNotesExist = await axios.get('http://localhost:4000/DailyNotes/exists/'+monthYear);
             if(dailyNotesExist.data) {
                 const dailyNotesRes = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
                 notes = notes.concat(dailyNotesRes.data.dailyNotes);
-            }
+            }*/
             this.setState({
-                notes: notes
+                notes: notes,
             }) 
         } 
     }
 
     getNotes() {
         return this.state.notes.map(function(currentNote, i) {
+            return <Note note={currentNote} index={i} key={i} />;
+        })
+    }
+
+    getDailyNotes() {
+        return this.state.dailyNotes.map(function(currentNote, i) {
             return <Note note={currentNote} index={i} key={i} />;
         })
     }
@@ -77,6 +91,7 @@ export default class NotesComponent extends Component {
                     </Link>
                     <div className="sticky-note-parent">
                         { this.getNotes() }
+                        { this.getDailyNotes() }
                     </div>
                 </div>
             </div>

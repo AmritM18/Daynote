@@ -115,8 +115,7 @@ export default class EditTodo extends Component {
                             index = i;
                         }
                     }
-                    notes.splice(index, 1);
-                    notes.push(modifiedNote);
+                    notes.splice(index, 1, modifiedNote);
                     const newNoteGroup = {
                         monthYear: getNoteGroupData.data.monthYear,
                         notes: notes
@@ -159,11 +158,12 @@ export default class EditTodo extends Component {
                 }
                 // If a month entry exists
                 else {
-                    const monthDailyNotes = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
-                    let dailyNotes = monthDailyNotes.data.dailyNotes;
+                    //const monthDailyNotes = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
+                    //let dailyNotes = monthDailyNotes.data.dailyNotes;
+                    let dailyNotes = this.props.dailyNotes;
                     dailyNotes.push(modifiedDailyNote);
                     const newDailyNoteGroup = {
-                        monthYear: monthDailyNotes.data.monthYear,
+                        monthYear: monthYear,
                         dailyNotes: dailyNotes
                     }
                     await axios.post('http://localhost:4000/DailyNotes/updateMonth/'+monthYear, newDailyNoteGroup);
@@ -171,19 +171,21 @@ export default class EditTodo extends Component {
             }
             // Editing a daily note
             else {
-                const monthDailyNotes = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
-                let dailyNotes = monthDailyNotes.data.dailyNotes;
+                //const monthDailyNotes = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
+                //let dailyNotes = monthDailyNotes.data.dailyNotes;
+                let dailyNotes = this.props.dailyNotes;
                 for(let i = 0; i<dailyNotes.length; i++) {
                     if(dailyNotes[i]._id === this.props.routeParams.match.params.id) {
                         dailyNotes.splice(i, 1, modifiedDailyNote);
                     }
                 }
                 const newDailyNoteGroup = {
-                    monthYear: monthDailyNotes.data.monthYear,
+                    monthYear: monthYear,
                     dailyNotes: dailyNotes
                 }
                 await axios.post('http://localhost:4000/DailyNotes/updateMonth/'+monthYear, newDailyNoteGroup);
             }
+            this.props.getDailyNote();
         }
 
         this.props.routeParams.history.push('/');
@@ -193,30 +195,28 @@ export default class EditTodo extends Component {
         let monthYear = "" + (this.props.month+1) + this.props.year;
 
         if(this.props.routeParams.match.path == "/addDailyNote/:id/:date") {
-            const getDailyNoteGroupData = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
-            let notes = getDailyNoteGroupData.data.dailyNotes;
-
+            //const getDailyNoteGroupData = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
+            //let notes = getDailyNoteGroupData.data.dailyNotes;
+            let notes = this.props.dailyNotes;
             for(let i = 0; i < notes.length; i++) {
                 if (notes[i]._id === this.props.routeParams.match.params.id) {
                     notes.splice(i, 1);
                 }
             }
             const newDailyNoteGroup = {
-                monthYear: getDailyNoteGroupData.data.monthYear,
+                monthYear: monthYear,
                 dailyNotes: notes
             }
-
             await axios.post('http://localhost:4000/DailyNotes/updateMonth/'+monthYear, newDailyNoteGroup);
+            this.props.getDailyNote();
         }
         else {
             const getNoteGroupData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear);
             let notes = getNoteGroupData.data.notes;
-            console.log(notes);
             let index = -1;
             for(let i = 0; i < notes.length; i++) {
                 if (notes[i]._id === this.props.routeParams.match.params.id) {
                     index = i;
-                    console.log(notes[i].note_title);
                 }
             }
             notes.splice(index, 1);
@@ -224,7 +224,6 @@ export default class EditTodo extends Component {
                 monthYear: getNoteGroupData.data.monthYear,
                 notes: notes
             }
-            console.log(newNoteGroup.notes);
             await axios.post('http://localhost:4000/notes/updateNoteMonth/'+monthYear, newNoteGroup)
         }
 

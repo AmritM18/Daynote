@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 import AddEventModalComponent from "../ModalComponents/AddEventModalComponent";
-import AddNoteModalComponent from "../ModalComponents/AddNoteModalComponent";
 import EditEventModalComponent from "../ModalComponents/EditEventModalComponent";
 import { Link } from 'react-router-dom';
 import '../../App.css';
@@ -35,8 +34,17 @@ export default class CalendarComponent extends Component {
             eventAddDate: "",
             showEventModal: "",
             eventId: null,
-            eventDate: ""
+            eventDate: "",
         };
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if(prevState.notes !== nextProps.dailyNotes) {
+            return {
+                notes: nextProps.dailyNotes
+            };
+        }
+        return null;
     }
 
     // Retrieves month's events and notes and stores them in state
@@ -102,7 +110,7 @@ export default class CalendarComponent extends Component {
     fetchData() {
         this.setState({
             events: [],
-            notes: []
+            notes: this.props.dailyNotes
         });
 
         let monthYear = "" + (this.props.month+1) + this.props.year;
@@ -123,6 +131,7 @@ export default class CalendarComponent extends Component {
                 console.log(error);
             })
 
+        /*
         axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear)
             .then(response => {
                 if(response.data) {
@@ -138,7 +147,7 @@ export default class CalendarComponent extends Component {
             })
             .catch(function (error) {
                 console.log(error);
-            })
+            })*/
     }
 
     // Returns a string for time
@@ -381,7 +390,6 @@ export default class CalendarComponent extends Component {
                     </div>
                 </div>
                 
-                <AddNoteModalComponent noteId={this.state.noteId} noteDate={this.state.noteDate} showModal={this.state.showNoteModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
                 <EditEventModalComponent eventId={this.state.eventId} eventDate={this.state.eventDate} showModal={this.state.showEventModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
                 <AddEventModalComponent eventDate={this.state.eventAddDate} showModal={this.state.showAddEventModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
 
