@@ -88,6 +88,7 @@
     width: 38px;
     border-radius: 50%;
     margin-right: 7px;
+    margin-top: 5px;
 }
 
 .colour-option:hover:not(.selected-colour) {
@@ -292,17 +293,57 @@ p.show-note, ul.show-note, li.show-note {
     transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
 }
 
-.event-modal-content {
+.event-modal-container {
     position: absolute;
+    z-index: 4000;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: #F3F3F3;
-    padding: 1rem 1.5rem;
-    width: 600px;
+    padding-left: 50px;
+    padding-top: 35px;
+    padding-right: 40px;
+    padding-bottom: 35px;
+    width: 43%;
     border-radius: 0.5rem;
     font-family: 'Hind Siliguri', sans-serif;
     color: #646E78;
+}
+
+.event-modal-content {
+    width: 78%;
+}
+
+.event-modal-content label {
+    margin-bottom: 1px;
+    margin-top: 8px;
+}
+
+.create-event-btn {
+    background-color: #F9C5C7;
+    color: #646E78;
+    padding: 5px 15px;
+    border-radius: 3px;
+    margin-top: 16px;
+    margin-right: 10px;
+}
+
+.create-event-btn:hover {
+    color: #646E78;
+    background-color: #F9C5C7;
+}
+
+.delete-event-btn {
+    background-color: #c0c7d0;
+    color: #646E78;
+    padding: 5px 15px;
+    border-radius: 3px;
+    margin-top: 16px;
+}
+
+.delete-event-btn:hover {
+    color: #646E78;
+    background-color: #c0c7d0;
 }
 
 .close-button {
@@ -316,7 +357,11 @@ p.show-note, ul.show-note, li.show-note {
 }
 
 .close-button:hover {
-    background-color: darkgray;
+    background-color: rgb(214, 214, 214);
+}
+
+.close-button:active {
+    background-color: rgb(199, 199, 199);
 }
 
 .show-events-modal {
@@ -329,21 +374,25 @@ p.show-note, ul.show-note, li.show-note {
 .event-modal-content input:not(.btn) {
     background-color: #F3F3F3;
     border-color: #C1C6CA;
+    transition: 0.3s;
 }
 
 .event-modal-content input:hover:not(.btn) {
-    border-color: #6C6D70;
+    border-color: #838487;
+    transition: 0.3s;
 }
 
-.event-modal-content input:focus {
+.event-modal-content input:focus:not(.btn) {
     background-color: #F3F3F3;
     box-shadow: none;
-    border-color: #6C6D70;
+    border-color: #838487;
+    transition: 0.3s;
 }
 
 .modal-title {
     font-family: 'Raleway', sans-serif;
     font-size: 28px;
+    margin-bottom: 12px;
 }
 
 /* NotesComponent styling */
@@ -446,14 +495,17 @@ div.sticky-note:nth-of-type(4n+4) {
 #note-update-btn {
     background-color: #F4A8AB;
     font-size: 14px;
+    border-radius: 3px;
 }
 
 #note-cancel-btn {
     background-color: #D5DBE1;
     font-size: 14px;
+    border-radius: 3px;
 }
 
 #note-delete-btn {
     background-color: #A6ACB4;
     font-size: 14px;
+    border-radius: 3px;
 }
