@@ -9,7 +9,6 @@ export default class AddEventModalComponent extends Component {
     constructor(props) {
         super(props);
 
-        this.toggleShowClass = this.toggleShowClass.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.onChangeEventTitle = this.onChangeEventTitle.bind(this);
         this.onChangeEventStart = this.onChangeEventStart.bind(this);
@@ -27,20 +26,28 @@ export default class AddEventModalComponent extends Component {
         }
     }
 
-    toggleShowClass() {
-        if(this.state.showClass === "") {
-            this.setState({
-                showClass: "show-events-modal"
-            });
-        }
-        else {
-            this.setState({
-                showClass: "",
-                event_title: "",
-                event_start: new Date(),
-                event_end: new Date(),
-                event_colour: "1"
-            });
+    componentDidUpdate(prevProps, prevState) {
+        if(prevProps.showModal !== this.props.showModal) {
+            // Hide modal
+            if(this.props.showModal === "") {
+                this.setState({
+                    showClass: "",
+                    event_title: "",
+                    event_colour: "1"
+                });
+            }
+            // Show modal
+            else {
+                let eventDate = new Date(this.props.eventDate);
+
+                this.setState({
+                    showClass: "show-events-modal",
+                    event_title: "",
+                    event_start: eventDate,
+                    event_end: eventDate,
+                    event_colour: "1"
+                });
+            }
         }
     }
 
@@ -62,9 +69,9 @@ export default class AddEventModalComponent extends Component {
         });
     }
 
-    onChangeEventColour(e) {
+    onChangeEventColour(colour) {
         this.setState({
-            event_colour: e.target.value
+            event_colour: colour
         });
     }
 
@@ -149,50 +156,49 @@ export default class AddEventModalComponent extends Component {
         return <Datetime onChange={this.onChangeEventEnd} value={endDate} initialValue={endDate} />;
     }
 
+    getColourOptions() {
+        let colourOptions = [];
+        for(let i = 1; i<=6; i++) {
+            colourOptions.push(<div key={i} className={`colour-option colour-${i} ${this.state.event_colour === ""+i ? "selected-colour" : ""}`} onClick={() => this.onChangeEventColour(""+i)}></div>);
+        }
+        return(<div className="d-flex">{colourOptions}</div>);
+    }
+
     render() {
         return(
             <div>
-                <div className="btn btn-primary float-right" onClick={this.toggleShowClass}>Add Event</div>
                 <div className={'event-modal ' + this.state.showClass}>
-                    <div className="event-modal-content">
-                        <span className="close-button" onClick={this.toggleShowClass}>&times;</span>
-                        <h4>Add An Event</h4>
-                        <form onSubmit={this.onSubmit}>
-                            <div className="form-group">
-                                <label>Event Name: </label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    value={this.state.event_title}
-                                    onChange={this.onChangeEventTitle}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Event Start: </label>
-                                {this.dateTimePickerStart()}
-                            </div>
-                            <div className="form-group">
-                                <label>Event End: </label>
-                                {this.dateTimePickerEnd()}
-                            </div>
-                            <div className="form-group">
-                                <label>Event Colour: </label>
-                                <select 
-                                    className="form-control"
-                                    value={this.state.event_colour}
-                                    onChange={this.onChangeEventColour}
-                                >
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <input type="submit" value="Create Event" className="btn btn-primary" />
-                            </div>
-                        </form>
+                    <div className="event-modal-container">
+                        <span className="close-button" onClick={this.props.closeModal}>&times;</span>
+                        <div className="event-modal-content">
+                            <div className="modal-title">Add An Event</div>
+                            <form onSubmit={this.onSubmit}>
+                                <div className="form-group">
+                                    <label>Event Name:</label>
+                                    <input 
+                                        type="text" 
+                                        className="form-control"
+                                        value={this.state.event_title}
+                                        onChange={this.onChangeEventTitle}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Start Date:</label>
+                                    {this.dateTimePickerStart()}
+                                </div>
+                                <div className="form-group">
+                                    <label>End Date:</label>
+                                    {this.dateTimePickerEnd()}
+                                </div>
+                                <div className="form-group">
+                                    <label>Event Colour:</label>
+                                    {this.getColourOptions()}
+                                </div>
+                                <div className="form-group">
+                                    <input type="submit" value="Create Event" className="btn create-event-btn" />
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

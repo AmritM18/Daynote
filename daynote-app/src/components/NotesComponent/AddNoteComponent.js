@@ -19,7 +19,8 @@ export default class EditTodo extends Component {
             note_title: "",
             note_text: "",
             note_date: new Date(),
-            isDailyNote: null
+            isDailyNote: null,
+            note_add_edit_title: "",
         }
     }
 
@@ -104,8 +105,7 @@ export default class EditTodo extends Component {
             }
             // otherwise the month exists
             else {
-                // need to edit the note
-                // edit
+                // edit note in existing month
                 if (this.props.routeParams.match.params.id) {
                     const getNoteGroupData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear);
                     let notes = getNoteGroupData.data.notes;
@@ -115,8 +115,7 @@ export default class EditTodo extends Component {
                             index = i;
                         }
                     }
-                    notes.splice(index, 1);
-                    notes.push(modifiedNote);
+                    notes.splice(index, 1, modifiedNote);
                     const newNoteGroup = {
                         monthYear: getNoteGroupData.data.monthYear,
                         notes: notes
@@ -159,11 +158,12 @@ export default class EditTodo extends Component {
                 }
                 // If a month entry exists
                 else {
-                    const monthDailyNotes = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
-                    let dailyNotes = monthDailyNotes.data.dailyNotes;
+                    //const monthDailyNotes = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
+                    //let dailyNotes = monthDailyNotes.data.dailyNotes;
+                    let dailyNotes = this.props.dailyNotes;
                     dailyNotes.push(modifiedDailyNote);
                     const newDailyNoteGroup = {
-                        monthYear: monthDailyNotes.data.monthYear,
+                        monthYear: monthYear,
                         dailyNotes: dailyNotes
                     }
                     await axios.post('http://localhost:4000/DailyNotes/updateMonth/'+monthYear, newDailyNoteGroup);
@@ -171,19 +171,21 @@ export default class EditTodo extends Component {
             }
             // Editing a daily note
             else {
-                const monthDailyNotes = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
-                let dailyNotes = monthDailyNotes.data.dailyNotes;
+                //const monthDailyNotes = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
+                //let dailyNotes = monthDailyNotes.data.dailyNotes;
+                let dailyNotes = this.props.dailyNotes;
                 for(let i = 0; i<dailyNotes.length; i++) {
                     if(dailyNotes[i]._id === this.props.routeParams.match.params.id) {
                         dailyNotes.splice(i, 1, modifiedDailyNote);
                     }
                 }
                 const newDailyNoteGroup = {
-                    monthYear: monthDailyNotes.data.monthYear,
+                    monthYear: monthYear,
                     dailyNotes: dailyNotes
                 }
                 await axios.post('http://localhost:4000/DailyNotes/updateMonth/'+monthYear, newDailyNoteGroup);
             }
+            this.props.getDailyNote();
         }
 
         this.props.routeParams.history.push('/');
@@ -193,30 +195,28 @@ export default class EditTodo extends Component {
         let monthYear = "" + (this.props.month+1) + this.props.year;
 
         if(this.props.routeParams.match.path == "/addDailyNote/:id/:date") {
-            const getDailyNoteGroupData = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
-            let notes = getDailyNoteGroupData.data.dailyNotes;
-
+            //const getDailyNoteGroupData = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
+            //let notes = getDailyNoteGroupData.data.dailyNotes;
+            let notes = this.props.dailyNotes;
             for(let i = 0; i < notes.length; i++) {
                 if (notes[i]._id === this.props.routeParams.match.params.id) {
                     notes.splice(i, 1);
                 }
             }
             const newDailyNoteGroup = {
-                monthYear: getDailyNoteGroupData.data.monthYear,
+                monthYear: monthYear,
                 dailyNotes: notes
             }
-
             await axios.post('http://localhost:4000/DailyNotes/updateMonth/'+monthYear, newDailyNoteGroup);
+            this.props.getDailyNote();
         }
         else {
             const getNoteGroupData = await axios.get('http://localhost:4000/notes/getNoteMonth/'+monthYear);
             let notes = getNoteGroupData.data.notes;
-            console.log(notes);
             let index = -1;
             for(let i = 0; i < notes.length; i++) {
                 if (notes[i]._id === this.props.routeParams.match.params.id) {
                     index = i;
-                    console.log(notes[i].note_title);
                 }
             }
             notes.splice(index, 1);
@@ -224,23 +224,22 @@ export default class EditTodo extends Component {
                 monthYear: getNoteGroupData.data.monthYear,
                 notes: notes
             }
-            console.log(newNoteGroup.notes);
             await axios.post('http://localhost:4000/notes/updateNoteMonth/'+monthYear, newNoteGroup)
         }
 
         this.props.routeParams.history.push('/');
     }
 
-
     render() {
         return(
             <div>
-                <p className="month">Add Note</p>
-                <form onSubmit={this.onSubmit}>
+                {(this.props.routeParams.match.path == "/addNote" || this.props.routeParams.match.path == "/addDailyNote/:date") ? <div className="add-note-title text-center">Add Note</div> : <div className="add-note-title text-center">Edit Note</div>}
+                <form className="add-note-form" onSubmit={this.onSubmit}>
                     <div className="form-group">
                         <label>Title</label>
                         <input 
                             type="text" 
+                            id="form-title-input"
                             className="form-control"
                             value={this.state.isDailyNote ? new Date(this.state.note_date).toDateString() : this.state.note_title}
                             onChange={this.onChangeNoteTitle}
@@ -253,26 +252,26 @@ export default class EditTodo extends Component {
                             apiKey="qapv6hfnxtm7zkn4x2h1alasz86je1rcynforifaa49w5l34"
                             value={this.state.note_text}
                             init={{
-                            height: 300,
+                            height: 240,
                             menubar: false,
                             plugins: [
-                                'advlist autolink lists link image', 
+                                'autolink lists link image', 
                                 'charmap print preview anchor help',
                                 'searchreplace visualblocks code',
-                                'insertdatetime media table paste wordcount'
+                                'insertdatetime media table paste'
                             ],
                             toolbar:
-                                'undo redo | formatselect | bold italic | \
-                                alignleft aligncenter alignright | \
-                                bullist numlist outdent indent | help'
+                                'bold italic underline strikethrough | bullist numlist'
                             }}
                             onEditorChange={this.onChangeNoteText}
                         />
                     </div>
-                    <div className="form-group">
-                        <input type="submit" value="Update" className="btn btn-primary mr-2" />
-                        <Link to="/" className="btn btn-primary mr-2">Cancel</Link>
-                        <div className="btn btn-primary" onClick={this.deleteNote}>Delete</div>
+                    <div className="form-group note-form-buttons d-flex justify-content-between">
+                        <div>
+                            <input type="submit" value="Update" id="note-update-btn" className="btn mr-2" />
+                            <Link to="/" id="note-cancel-btn" className="btn mr-2">Cancel</Link>
+                        </div>
+                        {(this.props.routeParams.match.path == "/addNote/:id" || this.props.routeParams.match.path == "/addDailyNote/:id/:date") ? <div id="note-delete-btn" className="btn" onClick={this.deleteNote}>Delete</div> : null}
                     </div>
                 </form> 
             </div>

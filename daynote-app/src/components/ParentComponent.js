@@ -4,6 +4,7 @@ import CalendarComponent from "./CalendarComponent/CalendarComponent";
 import NotesComponent from "./NotesComponent/NotesComponent";
 import AddNoteComponent from "./NotesComponent/AddNoteComponent";
 import EditEventModalComponent from "./ModalComponents/EditEventModalComponent";
+import axios from 'axios';
 
 export default class ParentComponent extends Component {
     constructor(props) {
@@ -14,12 +15,24 @@ export default class ParentComponent extends Component {
         this.nextMonth = this.nextMonth.bind(this);
         this.getMonthString = this.getMonthString.bind(this);
         this.goToToday = this.goToToday.bind(this);
+        this.getDailyNote = this.getDailyNote.bind(this);
 
         this.state = {
             day: new Date().getDate(),
             month: new Date().getMonth(),
             year: new Date().getFullYear(),
+            dailyNotes: [],
         };
+    }
+
+    componentDidMount() {
+        this.getDailyNote();
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.month !== this.state.month || prevState.year !== this.state.year) {
+            this.getDailyNote();
+        }
     }
 
     getMonthString(month) {
@@ -62,6 +75,22 @@ export default class ParentComponent extends Component {
             year: new Date().getFullYear()
         })
     }
+
+    async getDailyNote() {
+        let monthYear = "" + (this.state.month+1) + this.state.year;
+        const monthExists = await axios.get('http://localhost:4000/DailyNotes/exists/'+monthYear);
+        if (monthExists.data) {
+            const dailyNotesRes = await axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear);
+            this.setState({
+                dailyNotes: dailyNotesRes.data.dailyNotes,
+            })
+        }
+        else {
+            this.setState({
+                dailyNotes: [],
+            })
+        }
+    }
     
     render() {
         return (
@@ -72,7 +101,7 @@ export default class ParentComponent extends Component {
                     <Route 
                         exact path={["/", "/addNote", "/addNote/:id", "/addDailyNote/:date", "/addDailyNote/:id/:date"]}
                         render={(props) => (
-                            <CalendarComponent day={this.state.day} month={this.state.month} year={this.state.year} prevMonth={this.prevMonth} nextMonth={this.nextMonth} goToToday={this.goToToday}/>
+                            <CalendarComponent day={this.state.day} month={this.state.month} year={this.state.year} prevMonth={this.prevMonth} nextMonth={this.nextMonth} goToToday={this.goToToday} dailyNotes={this.state.dailyNotes}/>
                         )}    
                     />    
                   </div>
@@ -80,13 +109,13 @@ export default class ParentComponent extends Component {
                     <Route 
                         exact path="/"
                         render={(props) => (
-                            <NotesComponent month={this.state.month} year={this.state.year}/>
+                            <NotesComponent month={this.state.month} year={this.state.year} dailyNotes={this.state.dailyNotes}/>
                         )}
                     />
                     <Route 
                         exact path={["/addNote", "/addNote/:id", "/addDailyNote/:date", "/addDailyNote/:id/:date"]} 
                         render={(routeParams) => (
-                            <AddNoteComponent routeParams={routeParams} month={this.state.month} year={this.state.year}/>
+                            <AddNoteComponent routeParams={routeParams} month={this.state.month} year={this.state.year} getDailyNote={this.getDailyNote} dailyNotes={this.state.dailyNotes}/>
                         )}
                     />
                   </div>
@@ -95,23 +124,5 @@ export default class ParentComponent extends Component {
             </div>
         );
     }
-
-    /*
-    render() {
-        return (
-            <div className="container-fluid">
-              <div className="row mt-2">
-                  <div className="col-9">
-                    <CalendarComponent/>
-                  </div>
-                  <div className="col-3 border-left">
-                  component={NotesComponent}
-                    <NotesComponent/>
-                    <AddNoteComponent/>
-                  </div>
-              </div>
-            </div>
-        );
-    }*/
 }
 

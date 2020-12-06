@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 import AddEventModalComponent from "../ModalComponents/AddEventModalComponent";
-import AddNoteModalComponent from "../ModalComponents/AddNoteModalComponent";
 import EditEventModalComponent from "../ModalComponents/EditEventModalComponent";
 import { Link } from 'react-router-dom';
 import '../../App.css';
@@ -31,10 +30,21 @@ export default class CalendarComponent extends Component {
             showNoteModal: "",
             noteId: null,
             noteDate: "",
+            showAddEventModal: "",
+            eventAddDate: "",
             showEventModal: "",
             eventId: null,
-            eventDate: ""
+            eventDate: "",
         };
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if(prevState.notes !== nextProps.dailyNotes) {
+            return {
+                notes: nextProps.dailyNotes
+            };
+        }
+        return null;
     }
 
     // Retrieves month's events and notes and stores them in state
@@ -100,7 +110,7 @@ export default class CalendarComponent extends Component {
     fetchData() {
         this.setState({
             events: [],
-            notes: []
+            notes: this.props.dailyNotes
         });
 
         let monthYear = "" + (this.props.month+1) + this.props.year;
@@ -121,6 +131,7 @@ export default class CalendarComponent extends Component {
                 console.log(error);
             })
 
+        /*
         axios.get('http://localhost:4000/DailyNotes/getMonth/'+monthYear)
             .then(response => {
                 if(response.data) {
@@ -136,7 +147,7 @@ export default class CalendarComponent extends Component {
             })
             .catch(function (error) {
                 console.log(error);
-            })
+            })*/
     }
 
     // Returns a string for time
@@ -173,20 +184,21 @@ export default class CalendarComponent extends Component {
         const key = date.getDate()-1;
         let events = [];
         for(let i = 0; i<monthEvents[key].length; i+=2) {
-            let message = "";
+            let startMessage = "";
+            let endMessage = "";
             if(monthEvents[key][i+1] === "S") {
                 let startDate = new Date(monthEvents[key][i].event_start);
                 let time = this.getTime(startDate);
-                message =  " at " + time;
+                startMessage =  "" + time + " ";
             }
             else if(monthEvents[key][i+1] === "E") {
-                message = " Ends";
+                endMessage = " Ends";
             }
             let monthYear = "" + (this.props.month+1) + this.props.year; 
             //events.push(<Link to={"/edit/"+monthYear+monthEvents[key][i]._id} key={i} className={"colour-"+monthEvents[key][i].event_colour}>{monthEvents[key][i].event_title}{message}</Link>);
-            events.push(<div key={i} className={"colour-"+monthEvents[key][i].event_colour + " event"} onClick={() => this.editEvent(monthEvents[key][i], new Date(this.props.year, this.props.month, key+1))}>{monthEvents[key][i].event_title}{message}</div>)
+            events.push(<div key={i} className={"colour-"+monthEvents[key][i].event_colour + " event"} onClick={(e) => this.editEvent(e,monthEvents[key][i], new Date(this.props.year, this.props.month, key+1))}>{startMessage}{monthEvents[key][i].event_title}{endMessage}</div>)
         }
-        return <div key={key}>{events}</div>;
+        return <div key={key} className="events">{events}</div>;
     }
 
     // Places events into an array where length of array = # of days in month
@@ -272,34 +284,33 @@ export default class CalendarComponent extends Component {
             let children = [];
             let childrenNotes = [];
 
-            children.push(<td key={-1} className="date-cell p-0 text-center align-middle"><img src="assets/down-arrow.svg" alt="" className="toggle-notes" onClick={() => this.toggleDailyNotes(i)} /></td>);
-            childrenNotes.push(<td key={-1} className="note-cell p-0 bg-transparent"></td>);
+            children.push(<td key={-1} className="date-cell p-0 text-center"><img src="assets/down-arrow.svg" alt="" height="9" className="toggle-notes" onClick={() => this.toggleDailyNotes(i)} /></td>);
+            childrenNotes.push(<td key={-1} className="p-0 bg-transparent"></td>);
 
             for (let j = 0; j < 7; j++) {
                 if(daysLeft) {
-                    children.push(<td key={j} className="date-cell py-0"></td>);
-                    childrenNotes.push(<td key={j} className="note-cell py-0"></td>);
+                    children.push(<td key={j} className="date-cell"></td>);
+                    childrenNotes.push(<td key={j} className="note-cell p-0"></td>);
                     daysLeft--;
                 }
                 else {
                     if(numDays) {
                         let date = i * 7 + (j - startDay + 1);
-                        children.push(<td key={date + 7} className="date-cell py-0">{`${date}`}<br/>{this.getEvents(new Date(this.props.year,this.props.month,date),monthEvents)}</td>);
+                        children.push(<td key={date + 7} className="date-cell active-date-cell" onClick={() => this.addEvent(new Date(this.props.year, this.props.month, date))}>{`${date}`}<br/>{this.getEvents(new Date(this.props.year,this.props.month,date),monthEvents)}</td>);
                         
-                        // TODO: TEST THIS
                         // If a note entry exists → scroll to the daily note
                         if(monthNotes[date-1]) {
-                            childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell py-0"><a href={"#"+date}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</a></td>);
+                            childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell p-0"><a href={"#"+date}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</a></td>);
                         }
                         // Otherwise → add daily note
                         else {
-                            childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell py-0"><Link to={"/addDailyNote/"+date}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</Link></td>);
+                            childrenNotes.push(<td key={date + 7} className="note-cell active-note-cell p-0"><Link to={"/addDailyNote/"+date}>{this.getNotes(new Date(this.props.year,this.props.month,date),monthNotes)}</Link></td>);
                         }
                         numDays--;
                     }
                     else {
-                        children.push(<td key={curDate + j} className="date-cell py-0"></td>);
-                        childrenNotes.push(<td key={curDate + j} className="note-cell py-0"></td>);
+                        children.push(<td key={curDate + j} className="date-cell"></td>);
+                        childrenNotes.push(<td key={curDate + j} className="note-cell p-0"></td>);
                     }
                 }
             }
@@ -336,7 +347,15 @@ export default class CalendarComponent extends Component {
         }
     }
 
-    editEvent(event,date) {
+    addEvent(date) {
+        this.setState({
+            showAddEventModal: "show-events-modal",
+            eventAddDate: date,
+        })
+    }
+
+    editEvent(e,event,date) {
+        e.stopPropagation();
         this.setState({
             showEventModal: "show-events-modal",
             eventDate: date,
@@ -348,34 +367,36 @@ export default class CalendarComponent extends Component {
     closeModal() {
         this.setState({
             showNoteModal: "",
-            showEventModal: ""
+            showEventModal: "",
+            showAddEventModal: ""
         })
     }
 
     render() {
         return(
             <div>
-                <div className="d-flex justify-content-between">
+                <div className="d-flex justify-content-between align-items-center" id="calendar-header">
                     <div>
-                        <p className="text-center month">{`${this.getMonthString(this.props.month)} ${this.props.year}`}</p>
+                        <div className="text-center month">{`${this.getMonthString(this.props.month)} ${this.props.year}`}</div>
                     </div>
                     <div className="d-flex align-items-center">
-                        <AddEventModalComponent updateEvents={this.fetchData} />
-                    </div>
-                    <div className="d-flex align-items-center">
-                        <div className="today-button" onClick={this.props.goToToday}>Today</div>
-                        <img className="prev-month" src="assets/left-arrow.svg" onClick={this.props.prevMonth} />
-                        <img className="next-month" src="assets/right-arrow.svg" onClick={this.props.nextMonth} />
+                        <div className="today-button mr-2" onClick={this.props.goToToday}>Today</div>
+                        <div className="month-arrow-bg d-flex justify-content-center align-items-center mx-2" onClick={this.props.prevMonth}>
+                            <img className="prev-month" src="assets/left-arrow.svg" />
+                        </div>
+                        <div className="month-arrow-bg d-flex justify-content-center align-items-center" onClick={this.props.nextMonth}>
+                            <img className="next-month" src="assets/right-arrow.svg" />
+                        </div>
                     </div>
                 </div>
                 
-                <AddNoteModalComponent noteId={this.state.noteId} noteDate={this.state.noteDate} showModal={this.state.showNoteModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
                 <EditEventModalComponent eventId={this.state.eventId} eventDate={this.state.eventDate} showModal={this.state.showEventModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
+                <AddEventModalComponent eventDate={this.state.eventAddDate} showModal={this.state.showAddEventModal} closeModal={this.closeModal} updateEvents={this.fetchData} />
 
-                <table className="table table-borderless calendar">
+                <table id="calendar" className="table table-borderless">
                     <thead>
-                        <tr>
-                            <th scope="col" className="note-col"></th>
+                        <tr className="days-week">
+                            <th scope="col" className="note-arrow-col"></th>
                             <th scope="col">Sunday</th>
                             <th scope="col">Monday</th>
                             <th scope="col">Tuesday</th>
